@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
   Container,
@@ -32,6 +33,7 @@ import { convertFe2BeJob } from "utils/functions";
 function AddJob() {
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
   const initialValues = {
     title: "",
     location: "",
@@ -40,7 +42,7 @@ function AddJob() {
     experienceLevel: "",
     minSalary: "",
     maxSalary: "",
-    minYearExperience: "",
+    minYearsOfExperience: "",
     majors: [],
     requirements: [""],
     responsibilities: [],
@@ -62,7 +64,7 @@ function AddJob() {
         return schema.min(minSalary);
       })
       .required("Max salary is required"),
-    minYearExperience: Yup.number().min(0).required("Min year experience is required"),
+    minYearsOfExperience: Yup.number().min(0).required("Min years of experience is required"),
     majors: Yup.array()
       .of(Yup.string().required("Major is required"))
       .min(1, "At least one major is required"),
@@ -93,6 +95,7 @@ function AddJob() {
       })
       .then(() => {
         toast.success("Job posted successfully");
+        navigate("/company/home");
       })
       .catch((err) => {
         console.error(err);
@@ -145,14 +148,17 @@ function AddJob() {
               <Grid item xs={4}>
                 <MKInput
                   fullWidth
-                  label="Min Year Experience"
+                  label="Min Years of Experience"
                   type="number"
-                  value={formik.values.minYearExperience}
-                  onChange={(e) => formik.setFieldValue("minYearExperience", e.target.value)}
+                  value={formik.values.minYearsOfExperience}
+                  onChange={(e) => formik.setFieldValue("minYearsOfExperience", e.target.value)}
                   error={
-                    formik.touched.minYearExperience && Boolean(formik.errors.minYearExperience)
+                    formik.touched.minYearsOfExperience &&
+                    Boolean(formik.errors.minYearsOfExperience)
                   }
-                  helperText={formik.touched.minYearExperience && formik.errors.minYearExperience}
+                  helperText={
+                    formik.touched.minYearsOfExperience && formik.errors.minYearsOfExperience
+                  }
                 />
               </Grid>
               <Grid item xs={4}>

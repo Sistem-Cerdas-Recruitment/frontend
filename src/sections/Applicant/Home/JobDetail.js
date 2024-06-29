@@ -22,7 +22,9 @@ const JobDetail = (props) => {
   const { selectedJob, setSelectedJob, setJobId, loadingDetail, isFull } = props;
   const navigate = useNavigate();
 
-  const cardStyle = isFull ? { width: "55%" } : { overflowY: "auto", maxHeight: "100vh" };
+  const cardStyle = isFull
+    ? { width: "55%" }
+    : { overflowY: "auto", minHeight: "75vh", maxHeight: "100vh" };
   return (
     <>
       {selectedJob.id && !loadingDetail ? (
@@ -119,9 +121,11 @@ const JobDetail = (props) => {
             <MKBox mt={2} display="flex" flexDirection="column" gap={0.5}>
               <MKTypography variant="h6">Requirements</MKTypography>
               <MKTypography variant="body2" pl={3}>
-                <li key="minYearExperience">
+                <li key="minYearsOfExperience">
                   Minimum{" "}
-                  <span style={{ fontWeight: "bold" }}>{selectedJob.minYearExperience} years</span>{" "}
+                  <span style={{ fontWeight: "bold" }}>
+                    {selectedJob.minYearsOfExperience} years
+                  </span>{" "}
                   of experience in related field
                 </li>
                 <li key="majors">
@@ -170,7 +174,6 @@ const JobDetail = (props) => {
         <>
           {(!isFull && loadingDetail) || isFull ? (
             <MKBox
-              item
               xs={12}
               display="flex"
               flexDirection="column"

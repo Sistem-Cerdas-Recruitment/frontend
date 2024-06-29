@@ -66,54 +66,18 @@ function convertRole(role) {
 
 function convertFe2BeJob(values) {
   return {
-    title: values.title,
-    description: JSON.stringify({
-      description: values.description,
-      location: values.location,
-      salary: [Number(values.minSalary), Number(values.maxSalary)],
-      advantages: values.advantages,
-      additionalInfo: values.additionalInfo,
-      mode: values.mode,
-      type: values.type,
-      experienceLevel: values.experienceLevel,
-    }),
-    skills: [
-      "requirements",
-      ...values.requirements,
-      "responsibilities",
-      ...values.responsibilities,
-    ],
-    majors: values.majors,
-    years_of_experience: Number(values.minYearExperience),
+    ...values,
+    salary: `${values.minSalary} - ${values.maxSalary}`,
+    minYearsOfExperience: Number(values.minYearsOfExperience),
   };
 }
 
 function convertBe2FeJob(resData) {
-  const resDescription = JSON.parse(resData.description);
-  const resSkills = resData.skills
-    ? {
-        requirements: resData.skills.slice(0, resData.skills.indexOf("responsibilities")),
-        responsibilities: resData.skills.slice(resData.skills.indexOf("responsibilities") + 1),
-      }
-    : {};
+  const salary = resData.salary.split(" - ");
   return {
-    id: resData.id,
-    title: resData.title,
-    company: resData.company,
-    description: resDescription.description,
-    location: resDescription.location,
-    minSalary: resDescription.salary[0], // must be number
-    maxSalary: resDescription.salary[1], // must be number
-    advantages: resDescription.advantages,
-    additionalInfo: resDescription.additionalInfo,
-    mode: resDescription.mode,
-    type: resDescription.type,
-    experienceLevel: resDescription.experienceLevel,
-    ...resSkills,
-    majors: resData.majors || null,
-    minYearExperience: resData.years_of_experience || null,
-    createdAt: resData.createdAt,
-    applied: resData.applied,
+    ...resData,
+    minSalary: Number(salary[0]), // must be number
+    maxSalary: Number(salary[1]), // must be number
   };
 }
 

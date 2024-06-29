@@ -38,6 +38,7 @@ function HomeApplicant() {
         },
       })
       .then((res) => {
+        console.log(res.data.data);
         const newJobs = res.data.data.map((job) => convertBe2FeJob(job));
         setJobs(newJobs);
         setLoadingCard(false);
@@ -76,7 +77,7 @@ function HomeApplicant() {
 
   return (
     <Container>
-      <MKBox minHeight="100vh" p={2}>
+      <MKBox minHeight="94.8vh" p={2}>
         <JobFilter
           query={query}
           setQuery={setQuery}
