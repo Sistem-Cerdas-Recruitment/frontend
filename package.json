@@ -1,18 +1,15 @@
 {
-  "name": "material-kit-2-react",
-  "version": "2.1.0",
+  "name": "Ask AI | Automate Hiring",
+  "version": "1.1.0",
   "private": true,
-  "author": "Creative Tim",
-  "license": "See license in https://www.creative-tim.com/license",
-  "description": "React version of Material Kit 2 by Creative Tim",
-  "bugs": {
-    "url": "https://github.com/creativetimofficial/ct-material-kit-react/issues"
-  },
+  "author": "Team TA Capstone Project",
+  "description": "This project is a capstone project for the Team TA Capstone Project. The project is a web application that automates the hiring process for companies.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/creativetimofficial/ct-material-kit-react.git"
+    "url": "git+https://github.com/Sistem-Cerdas-Recruitment/frontend.git"
   },
   "dependencies": {
+    "ajv": "^8.16.0",
     "@emotion/cache": "11.10.7",
     "@emotion/react": "11.10.6",
     "@emotion/styled": "11.10.6",
