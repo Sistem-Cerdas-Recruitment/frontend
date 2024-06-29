@@ -1,13 +1,8 @@
 import { Fragment, useState, useEffect } from "react";
-
-// react-router components
-import { Link } from "react-router-dom";
-
-// prop-types is a library for typechecking of props.
+import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from "axios";
 
-// @mui material components
 import {
   IconButton,
   SvgIcon,
@@ -37,6 +32,7 @@ import { UserCircleIcon } from "@heroicons/react/24/solid";
 function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, center }) {
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
   const [dropdown, setDropdown] = useState("");
   const [dropdownEl, setDropdownEl] = useState("");
   const [dropdownName, setDropdownName] = useState("");
@@ -46,12 +42,12 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
   const [arrowRef, setArrowRef] = useState(null);
   const [mobileNavbar, setMobileNavbar] = useState(false);
   const [mobileView, setMobileView] = useState(false);
-  const [profileDropdown, setProfileDropdown] = useState("");
+  const [profileDropdown, setProfileDropdown] = useState(null);
+  const [profileArrowRef, setProfileArrowRef] = useState(null);
 
   const openMobileNavbar = () => setMobileNavbar(!mobileNavbar);
 
   useEffect(() => {
-    // A function that sets the display state for the DefaultNavbarMobile.
     function displayMobileNavbar() {
       if (window.innerWidth < breakpoints.values.lg) {
         setMobileView(true);
@@ -62,16 +58,8 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
       }
     }
 
-    /** 
-     The event listener that's calling the displayMobileNavbar function when 
-     resizing the window.
-    */
     window.addEventListener("resize", displayMobileNavbar);
-
-    // Call the displayMobileNavbar function to set the state with the initial value.
     displayMobileNavbar();
-
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", displayMobileNavbar);
   }, []);
 
@@ -443,6 +431,89 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
     </Popper>
   );
 
+  const renderProfileDropdown = (
+    <Popper
+      anchorEl={profileDropdown}
+      popperRef={null}
+      open={Boolean(profileDropdown)}
+      placement="top-end"
+      transition
+      style={{ zIndex: 10 }}
+      modifiers={[
+        {
+          name: "arrow",
+          enabled: true,
+          options: {
+            element: profileArrowRef,
+          },
+        },
+      ]}
+      onMouseEnter={() => {
+        setProfileDropdown(profileDropdown);
+      }}
+      onMouseLeave={() => {
+        setProfileDropdown(null);
+      }}
+    >
+      {({ TransitionProps }) => (
+        <Grow
+          {...TransitionProps}
+          sx={{
+            transformOrigin: "left top",
+            background: "#fcfcfc",
+            boxShadow: "0 2px 4px 0 rgba(0,0,0,0.1)",
+          }}
+        >
+          <MKBox borderRadius="lg">
+            <MKTypography variant="h1" color="white">
+              <Icon ref={setProfileArrowRef} sx={{ mt: -3 }}>
+                arrow_drop_up
+              </Icon>
+            </MKTypography>
+            <MKBox
+              borderRadius="lg"
+              mt={2}
+              px={3}
+              py={1}
+              display="flex"
+              flexDirection="column"
+              gap={1}
+            >
+              <MKTypography variant="h6" color="dark" fontWeight="bold" mt={1}>
+                {localStorage.getItem("name")}
+              </MKTypography>
+              <MKButton variant="text" color="warning" onClick={() => navigate("/profile")}>
+                Profile
+              </MKButton>
+              <MKButton
+                variant="text"
+                color="error"
+                onClick={() => {
+                  axios
+                    .post(`${url}/api/auth/logout`, {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      },
+                    })
+                    .then((res) => {
+                      console.log(res);
+                      localStorage.clear();
+                      window.location.href = "/sign-in";
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }}
+              >
+                LogOut
+              </MKButton>
+            </MKBox>
+          </MKBox>
+        </Grow>
+      )}
+    </Popper>
+  );
+
   return (
     <Container sx={sticky ? { position: "sticky", top: 0, zIndex: 10 } : null}>
       <MKBox
@@ -484,73 +555,17 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
           >
             {renderNavbarItems}
           </MKBox>
-          {/* LOGOUT */}
+          {/* USER PROFILE */}
           {localStorage.getItem("token") && (
-            <MKBox ml={{ xs: "auto", lg: 0 }}>
-              <MKButton
-                variant="text"
-                color="error"
-                onClick={() => {
-                  axios
-                    .post(`${url}/api/auth/logout`, {
-                      headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                      },
-                    })
-                    .then((res) => {
-                      console.log(res);
-                      localStorage.clear();
-                      window.location.href = "/sign-in";
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }}
-              >
-                LogOut
-              </MKButton>
-            </MKBox>
-          )}
-          {/* USER */}
-          {/* when hover the UserCicleIcon, display it names in Popper for 3s */}
-          <MKBox
-            display={{ xs: "none", lg: "flex" }}
-            ml={2}
-            sx={{ cursor: "pointer" }}
-            onMouseEnter={(currentTarget) => setProfileDropdown(currentTarget)}
-            onMouseLeave={() => setProfileDropdown(null)}
-          >
-            <IconButton>
+            <IconButton
+              onMouseEnter={({ currentTarget }) => setProfileDropdown(currentTarget)}
+              onMouseLeave={() => setProfileDropdown(null)}
+            >
               <SvgIcon>
                 <UserCircleIcon />
               </SvgIcon>
             </IconButton>
-            <Popper
-              open={Boolean(profileDropdown)}
-              anchorEl={profileDropdown}
-              placement="left-start"
-              transition
-              style={{ zIndex: 10 }}
-              onMouseEnter={() => setProfileDropdown(profileDropdown)}
-              onMouseLeave={() => setProfileDropdown(null)}
-            >
-              {({ TransitionProps }) => (
-                <Grow
-                  {...TransitionProps}
-                  sx={{
-                    transformOrigin: "left top",
-                    background: ({ palette: { white } }) => white.main,
-                  }}
-                >
-                  <MKBox borderRadius="lg" p={2} mt={2}>
-                    <MKTypography variant="button" color="dark" fontWeight="bold">
-                      {localStorage.getItem("name")}
-                    </MKTypography>
-                  </MKBox>
-                </Grow>
-              )}
-            </Popper>
-          </MKBox>
+          )}
           {/* MOBILE MENU */}
           <MKBox
             display={{ xs: "inline-block", lg: "none" }}
@@ -576,6 +591,7 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
       </MKBox>
       {dropdownMenu}
       {nestedDropdownMenu}
+      {renderProfileDropdown}
     </Container>
   );
 }
