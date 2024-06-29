@@ -8,6 +8,7 @@ import MKTypography from "components/MKTypography";
 import { toast } from "react-toastify";
 import { CpuChipIcon, UserCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 import SpinningBar from "atoms/SpinningBar";
+import RunningText from "atoms/RunningText";
 
 const Interview = () => {
   // eslint-disable-next-line no-undef
@@ -25,7 +26,6 @@ const Interview = () => {
   const [nPressed, setNPressed] = useState(0);
 
   const preventEvent = (e) => {
-    console.log("onDevelopment", onDevelopment);
     if (onDevelopment) return;
     e.preventDefault();
   };
@@ -61,6 +61,7 @@ const Interview = () => {
       })
       .then((res) => {
         if (res.data.status === "COMPLETED") {
+          toast.success("Interview completed. Redirecting to history page.");
           navigate(`/applicant/history`);
         } else {
           const newQuestion = res.data.response;
@@ -75,7 +76,10 @@ const Interview = () => {
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
+    // if enter + shift is pressed, add new line
+    if (event.key === "Enter" && event.shiftKey) {
+      return;
+    } else if (event.key === "Enter") {
       answerQuestion();
     } else if (event.key === "Backspace") {
       setBackspaceCounter(backspaceCounter + 1);
@@ -118,7 +122,6 @@ const Interview = () => {
 
   // prevent the user from leaving the page, using special keys, or switching tabs during the interview
   useEffect(() => {
-    console.log("onDevelopment", onDevelopment);
     if (onDevelopment) return;
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -233,8 +236,6 @@ const Interview = () => {
       localStorage.setItem("keyCounter", JSON.stringify(keyCounter));
       localStorage.setItem("backspaceCounter", backspaceCounter);
     }
-    console.log("storage keyCounter", localStorage.getItem("keyCounter"));
-    console.log("storage backspaceCounter", localStorage.getItem("backspaceCounter"));
   }, [nPressed]);
 
   // fetch last interview chat logs
@@ -272,16 +273,22 @@ const Interview = () => {
             borderRadius={15}
             width="75%"
             mx="auto"
+            gap={3.8}
           >
             {/* History section */}
             {history.map((item, index) => (
-              <MKBox key={index} display="flex" flexDirection="column" gap={3} mb={3} px={5}>
+              <MKBox key={index} display="flex" flexDirection="column" gap={2.5} px={5}>
                 <MKBox display="flex" flexDirection="row" justifyContent="flex-start" gap={2}>
                   <SvgIcon component={CpuChipIcon} sx={{ height: 30, width: 30 }} />
                   <MKBox maxWidth="85%">
-                    <MKTypography variant="body2" sx={{ fontWeight: 500 }} onCopy={preventEvent}>
-                      {item.question}
-                    </MKTypography>
+                    {/* animated the last index only */}
+                    <RunningText
+                      variant="body2"
+                      sx={{ fontWeight: 500 }}
+                      onCopy={preventEvent}
+                      isAnimated={index === history.length - 1}
+                      text={item.question}
+                    />
                   </MKBox>
                 </MKBox>
                 {item.answer && (
@@ -306,7 +313,7 @@ const Interview = () => {
             {/* spinning bar if isLoading */}
             {loading && (
               <MKBox display="flex" justifyContent="center" alignItems="center">
-                <SpinningBar />
+                <SpinningBar size={75} />
               </MKBox>
             )}
             {/* Input section */}
@@ -331,7 +338,7 @@ const Interview = () => {
                 onKeyDown={handleKeyPress}
                 onChange={(e) => setAnswer(e.target.value)}
               />
-              <IconButton onClick={() => console.log("onDev", onDevelopment)}>
+              <IconButton onClick={answerQuestion}>
                 <SvgIcon
                   // component={ChevronDoubleUpIcon}
                   // sx={{ height: 30, width: 30 }}
