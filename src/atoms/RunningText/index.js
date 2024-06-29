@@ -15,7 +15,7 @@ const RunningText = ({ isAnimated, isByWord, text, delay, ...others }) => {
     if (isByWord) {
       animateByWord(delay || 50);
     } else {
-      animateByCharacter(delay || 20);
+      animateByCharacter(delay || 14);
     }
     window.scrollTo(0, document.body.scrollHeight + 50);
 
