@@ -7,6 +7,7 @@ import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 
 import { CpuChipIcon, UserCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/solid";
+import SpinningBar from "atoms/SpinningBar";
 
 const Interview = () => {
   // eslint-disable-next-line no-undef
@@ -27,29 +28,27 @@ const Interview = () => {
     if (answer.trim() === "") {
       return;
     }
-
+    setLoading(true);
+    const newKeyCounter = fillCounter();
     const postData = {
       job_application_id: applicationId,
       chat: {
         question,
         answer,
         backspace_count: backspaceCounter,
-        letter_click_count: keyCounter,
+        letter_click_counts: newKeyCounter,
       },
     };
-    console.log(postData);
-
-    const newHistory = history.slice(0, history.length - 1);
-    newHistory.push({ question, answer });
-    setHistory(newHistory);
+    history[history.length - 1].answer = answer;
     setAnswer("");
-    setQuestion("");
     setNPressed(0);
     setKeyCounter({});
     setBackspaceCounter(0);
+    localStorage.removeItem("keyCounter");
+    localStorage.removeItem("backspaceCounter");
 
     axios
-      .post(`${url}/api/interview/answer`, postData, {
+      .patch(`${url}/api/interview/answer`, postData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -59,10 +58,9 @@ const Interview = () => {
           navigate(`/application/${applicationId}/result`);
         } else {
           const newQuestion = res.data.response;
-          const newHistory = [...history];
-          newHistory.push({ question: newQuestion, answer: null });
-          setHistory(newHistory);
+          history.push({ question: newQuestion, answer: null });
           setQuestion(newQuestion);
+          setLoading(false);
         }
       })
       .catch((err) => {
@@ -77,22 +75,26 @@ const Interview = () => {
       setBackspaceCounter(backspaceCounter + 1);
     } else {
       const key = event.key.toLowerCase();
-      setKeyCounter((prevCounts) => ({
-        ...prevCounts,
-        [key]: (prevCounts[key] || 0) + 1,
-      }));
+      if (key.length === 1 && key >= "a" && key <= "z") {
+        setKeyCounter((prevCounts) => ({
+          ...prevCounts,
+          [key]: (prevCounts[key] || 0) + 1,
+        }));
+      }
     }
     setNPressed(nPressed + 1);
   };
 
-  // scroll to bottom when changing the route
-  useEffect(() => {
-    document.documentElement.scrollTop = 0;
-    document.scrollingElement.scrollTop = 0;
-  }, [pathname]);
+  function fillCounter() {
+    const newKeyCounter = { ...keyCounter };
+    for (let i = 97; i < 123; i++) {
+      const key = String.fromCharCode(i);
+      newKeyCounter[key] = newKeyCounter[key] || 0;
+    }
+    return newKeyCounter;
+  }
 
-  // get the last key counter from local storage
-  useEffect(() => {
+  function initCounter() {
     if (!localStorage.getItem("keyCounter")) {
       const defaultKeyCounter = {};
       for (let i = 97; i < 123; i++) {
@@ -106,6 +108,11 @@ const Interview = () => {
       localStorage.setItem("backspaceCounter", 0);
     }
     setBackspaceCounter(parseInt(localStorage.getItem("backspaceCounter")));
+  }
+
+  // get the last key counter from local storage
+  useEffect(() => {
+    initCounter();
   }, []);
 
   // update the key counter in local storage after 10 key presses
@@ -114,6 +121,8 @@ const Interview = () => {
       localStorage.setItem("keyCounter", JSON.stringify(keyCounter));
       localStorage.setItem("backspaceCounter", backspaceCounter);
     }
+    console.log("storage keyCounter", localStorage.getItem("keyCounter"));
+    console.log("storage backspaceCounter", localStorage.getItem("backspaceCounter"));
   }, [nPressed]);
 
   // fetch last interview chat logs
@@ -183,6 +192,12 @@ const Interview = () => {
                 )}
               </MKBox>
             ))}
+            {/* spinning bar if isLoading */}
+            {loading && (
+              <MKBox display="flex" justifyContent="center" alignItems="center">
+                <SpinningBar size={50} />
+              </MKBox>
+            )}
             {/* Input section */}
             <MKBox
               display="flex"
