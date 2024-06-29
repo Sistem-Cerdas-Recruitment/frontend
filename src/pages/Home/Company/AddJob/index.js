@@ -268,11 +268,9 @@ function AddJob() {
               error={formik.touched.experienceLevel && Boolean(formik.errors.experienceLevel)}
               helperText={formik.touched.experienceLevel && formik.errors.experienceLevel}
             />
-            {/* addableForm for requirements, responsibilities, and advantages */}
             <AddableForm formik={formik} name="requirements" label="Requirement" />
             <AddableForm formik={formik} name="responsibilities" label="Responsibility" />
             <AddableForm formik={formik} name="advantages" label="Advantage" />
-            {/* Additional info multiple line input */}
             <MKInput
               label="Additional Information"
               value={formik.values.additionalInfo}

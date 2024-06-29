@@ -14,7 +14,8 @@ import * as Yup from "yup";
 import { convertFullDateString } from "utils/functions";
 import { toast } from "react-toastify";
 
-import AddableForm from "atoms/AddableForm";
+import ExperienceFrom from "sections/Applicant/Application/ApplyCV/ExperienceForm";
+import EducationFrom from "sections/Applicant/Application/ApplyCV/EducationForm";
 import SpinningBar from "atoms/SpinningBar";
 
 const ApplyCV = () => {
@@ -30,6 +31,8 @@ const ApplyCV = () => {
   const [selectedCVId, setSelectedCVId] = useState(null);
   const [onExtract, setOnExtract] = useState(true);
   const [onEdit, setOnEdit] = useState(true);
+  const [eduEditIndexs, setEduEditIndexs] = useState([]);
+  const [expEditIndexs, setExpEditIndexs] = useState([]);
   const [onEditIndex, setOnEditIndex] = useState([]);
 
   const [skills, setSkills] = useState([]);
@@ -98,7 +101,8 @@ const ApplyCV = () => {
             position: e.designation,
           }))
         );
-        setEducations(res.data.educations.map((e) => ({ GPA: e.GPA, major: e.major })));
+        // gpa is 3.42/4.00, we only get 0 until 2 index
+        setEducations(res.data.educations.map((e) => ({ ...e, GPA: e.GPA.slice(0, 3) })));
         setSkills(res.data.skills);
         setOnExtract(false);
       })
@@ -336,25 +340,25 @@ const ApplyCV = () => {
                     disabled
                   />
                 </MKBox>
-                <MKBox display="flex" flexDirection="column" gap={0}>
-                  <MKTypography style={{ color: "grey", fontSize: "15px" }}>
-                    (Please add experiences start date and end date)
-                  </MKTypography>
-                  <AddableForm
-                    data={experiences}
-                    setData={setExperiences}
-                    label="Experience"
-                    name="experiences"
-                    onEdit={onEdit}
-                    onEditIndex={onEditIndex}
-                    setOnEditIndex={setOnEditIndex}
-                  />
-                  <MKTypography style={{ color: "grey", fontSize: "14.2px", padding: "0 30px" }}>
-                    {onEdit
-                      ? "(Please save each experience before confirm edit)"
-                      : "(Please edit to add or remove experience)"}
-                  </MKTypography>
-                </MKBox>
+                <EducationFrom
+                  data={educations}
+                  setData={setEducations}
+                  onEdit={onEdit}
+                  onEditIndex={eduEditIndexs}
+                  setOnEditIndex={setEduEditIndexs}
+                />
+                <ExperienceFrom
+                  data={experiences}
+                  setData={setExperiences}
+                  onEdit={onEdit}
+                  onEditIndex={expEditIndexs}
+                  setOnEditIndex={setExpEditIndexs}
+                />
+                <MKTypography style={{ color: "grey", fontSize: "14.2px", padding: "0 30px" }}>
+                  {onEdit
+                    ? "(Please save each educations and experiences before confirm edit)"
+                    : "(Please edit to add or remove educations and experiences)"}
+                </MKTypography>
                 <MKBox display="flex" justifyContent="flex-start" mr={2} gap={2}>
                   <MKButton
                     variant="text"
@@ -371,7 +375,9 @@ const ApplyCV = () => {
                     color="success"
                     size="large"
                     sx={{ width: "20%" }}
-                    disabled={!onEdit || (onEdit && onEditIndex.length > 0)}
+                    disabled={
+                      !onEdit || (onEdit && (eduEditIndexs.length > 0 || expEditIndexs.length > 0))
+                    }
                     onClick={() => setOnEdit(false)}
                   >
                     Confirm Edit
@@ -379,15 +385,17 @@ const ApplyCV = () => {
                 </MKBox>
               </MKBox>
             ) : (
-              <MKBox display="flex" flexDirection="column" gap={2} alignItems="center">
-                <MKTypography variant="body1" sx={{ color: "black", fontWeight: "bold" }}>
-                  Extracting your CV data
-                </MKTypography>
-                <MKTypography variant="body2" sx={{ color: "grey" }}>
-                  Please wait while we extract your CV data
-                </MKTypography>
-                <SpinningBar size={100} />
-              </MKBox>
+              recentCV.length > 0 && (
+                <MKBox display="flex" flexDirection="column" gap={2} alignItems="center">
+                  <MKTypography variant="body1" sx={{ color: "black", fontWeight: "bold" }}>
+                    Extracting your CV data
+                  </MKTypography>
+                  <MKTypography variant="body2" sx={{ color: "grey" }}>
+                    Please wait while we extract your CV data
+                  </MKTypography>
+                  <SpinningBar size={100} />
+                </MKBox>
+              )
             )}
           </MKBox>
           {/* submit button */}

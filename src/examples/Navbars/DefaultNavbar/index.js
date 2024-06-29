@@ -551,7 +551,7 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
             color="inherit"
             display={{ xs: "none", lg: "flex" }}
             ml="auto"
-            mr={center ? "auto" : 0}
+            mr={center ? "auto" : 2}
           >
             {renderNavbarItems}
           </MKBox>
