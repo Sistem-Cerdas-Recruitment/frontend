@@ -1,28 +1,34 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import propTypes from "prop-types";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Container, SvgIcon, TextField, IconButton } from "@mui/material";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
-
+import { toast } from "react-toastify";
 import { CpuChipIcon, UserCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 import SpinningBar from "atoms/SpinningBar";
 
 const Interview = () => {
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
+  // eslint-disable-next-line no-undef
+  const onDevelopment = process.env.REACT_APP_ONDEV === "true";
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const { id: applicationId } = useParams();
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("ON_GOING");
   const [history, setHistory] = useState([]); // [ { question: "", answer: "" }
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [backspaceCounter, setBackspaceCounter] = useState(0);
   const [keyCounter, setKeyCounter] = useState({});
   const [nPressed, setNPressed] = useState(0);
+
+  const preventEvent = (e) => {
+    console.log("onDevelopment", onDevelopment);
+    if (onDevelopment) return;
+    e.preventDefault();
+  };
 
   const answerQuestion = () => {
     if (answer.trim() === "") {
@@ -55,7 +61,7 @@ const Interview = () => {
       })
       .then((res) => {
         if (res.data.status === "COMPLETED") {
-          navigate(`/application/${applicationId}/result`);
+          navigate(`/applicant/history`);
         } else {
           const newQuestion = res.data.response;
           history.push({ question: newQuestion, answer: null });
@@ -110,6 +116,112 @@ const Interview = () => {
     setBackspaceCounter(parseInt(localStorage.getItem("backspaceCounter")));
   }
 
+  // prevent the user from leaving the page, using special keys, or switching tabs during the interview
+  useEffect(() => {
+    console.log("onDevelopment", onDevelopment);
+    if (onDevelopment) return;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        showToast("error", "Suspicous activity detected.");
+      }
+    };
+    const handleBlur = () => {
+      showToast("error", "Suspicous activity detected.");
+    };
+    const handleFocus = () => {
+      toast.dismiss();
+    };
+    const handleMouseLeave = () => {
+      showToast("error", "Suspicous activity detected.");
+    };
+    const handleKeyDown = (e) => {
+      const isAlphanumeric = e.key.length === 1 && e.key.match(/[a-z0-9]/i);
+      const availableKeys = [
+        // eslint-disable-next-line prettier/prettier
+        "!",
+        "@",
+        "#",
+        "$",
+        "%",
+        "^",
+        "&",
+        "*",
+        "(",
+        ")",
+        "_",
+        "+",
+        "-",
+        "=",
+        "[",
+        "]",
+        // eslint-disable-next-line prettier/prettier
+        "{",
+        "}",
+        "\\",
+        "|",
+        ";",
+        ":",
+        "'",
+        '"',
+        ",",
+        ".",
+        "/",
+        "<",
+        ">",
+        "?",
+        "`",
+        "~",
+        // eslint-disable-next-line prettier/prettier
+        "Control",
+        "Alt",
+        "Shift",
+        "Enter",
+        "Backspace",
+        "Delete",
+        "Home",
+        "End",
+        // eslint-disable-next-line prettier/prettier
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "CapsLock",
+        "Tab",
+        " ",
+      ];
+      if (isAlphanumeric || availableKeys.includes(e.key)) return;
+      e.preventDefault();
+      showToast("warn", "Forbidden key pressed.");
+    };
+
+    const showToast = (type, message) => {
+      toast[type](message || "You are not allowed to perform this action.", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: false,
+        progress: undefined,
+        theme: "colored",
+      });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   // get the last key counter from local storage
   useEffect(() => {
     initCounter();
@@ -140,7 +252,6 @@ const Interview = () => {
         }));
         setHistory(simpleHistory);
         setQuestion(simpleHistory[simpleHistory.length - 1].question);
-        setStatus(res.data.status);
         setLoading(false);
       })
       .catch((err) => {
@@ -168,7 +279,7 @@ const Interview = () => {
                 <MKBox display="flex" flexDirection="row" justifyContent="flex-start" gap={2}>
                   <SvgIcon component={CpuChipIcon} sx={{ height: 30, width: 30 }} />
                   <MKBox maxWidth="85%">
-                    <MKTypography variant="body2" sx={{ fontWeight: 500 }}>
+                    <MKTypography variant="body2" sx={{ fontWeight: 500 }} onCopy={preventEvent}>
                       {item.question}
                     </MKTypography>
                   </MKBox>
@@ -183,7 +294,7 @@ const Interview = () => {
                       border="3px solid #f2f2f2"
                       sx={{ backgroundColor: "#f7f7f7" }}
                     >
-                      <MKTypography variant="body2" sx={{ fontWeight: 400 }}>
+                      <MKTypography variant="body2" sx={{ fontWeight: 400 }} onCopy={preventEvent}>
                         {item.answer}
                       </MKTypography>
                     </MKBox>
@@ -195,7 +306,7 @@ const Interview = () => {
             {/* spinning bar if isLoading */}
             {loading && (
               <MKBox display="flex" justifyContent="center" alignItems="center">
-                <SpinningBar size={50} />
+                <SpinningBar />
               </MKBox>
             )}
             {/* Input section */}
@@ -216,10 +327,11 @@ const Interview = () => {
                 placeholder="Type your answer here"
                 variant="outlined"
                 value={answer}
+                onPaste={preventEvent}
                 onKeyDown={handleKeyPress}
                 onChange={(e) => setAnswer(e.target.value)}
               />
-              <IconButton onClick={answerQuestion}>
+              <IconButton onClick={() => console.log("onDev", onDevelopment)}>
                 <SvgIcon
                   // component={ChevronDoubleUpIcon}
                   // sx={{ height: 30, width: 30 }}
@@ -228,6 +340,12 @@ const Interview = () => {
                   color="black"
                 />
               </IconButton>
+            </MKBox>
+            {/* Disclaimer that enter are use to send, and shift + enter are use to new line */}
+            <MKBox display="flex" justifyContent="flex-start" pt={1} pl={6}>
+              <MKTypography variant="caption" color="grey" sx={{ fontWeight: 500 }}>
+                Press Enter to send, Shift + Enter for new line
+              </MKTypography>
             </MKBox>
           </MKBox>
           <MKBox display="flex" justifyContent="center" mt={5} />
