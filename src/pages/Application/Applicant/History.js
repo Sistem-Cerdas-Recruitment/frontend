@@ -182,7 +182,7 @@ function HistoryApplicant() {
                                 sx={{
                                   borderRadius: 20,
                                   padding: "0.5rem 2rem",
-                                  width: "fit-content",
+                                  width: "100%",
                                 }}
                               >
                                 <MKTypography

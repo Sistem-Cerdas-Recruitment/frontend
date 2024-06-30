@@ -1,3 +1,5 @@
+import { Icon } from "@mui/material";
+
 import SignIn from "pages/Authentication/SignIn";
 
 import SignUpApplicant from "pages/Authentication/SignUp/Applicant";
@@ -13,27 +15,28 @@ import AddJob from "pages/Home/Company/AddJob";
 import HistoryCompany from "pages/Application/Company/History";
 import InterviewResult from "pages/Application/Company/InterviewResult";
 
-const routes2 = [
+const routes = [
+  // init and all
   {
     name: "sign in",
     route: "/sign-in",
     component: <SignIn />,
     display: true,
-    for: "all",
+    for: "init",
   },
   {
     name: "sign up applicant",
     route: "/applicant/sign-up",
     component: <SignUpApplicant />,
     display: true,
-    for: "all",
+    for: "init",
   },
   {
-    name: "home applicant",
-    route: "/applicant/home",
-    component: <HomeApplicant />,
+    name: "sign up company",
+    route: "/company/sign-up",
+    component: <SignUpCompany />,
     display: true,
-    for: "applicant",
+    for: "init",
   },
   {
     name: "detail vacancy",
@@ -41,6 +44,15 @@ const routes2 = [
     component: <DetailVacancy />,
     display: false,
     for: "all",
+  },
+
+  // applicant only
+  {
+    name: "home applicant",
+    route: "/applicant/home",
+    component: <HomeApplicant />,
+    display: true,
+    for: "applicant",
   },
   {
     name: "apply cv",
@@ -64,13 +76,7 @@ const routes2 = [
     for: "applicant",
   },
 
-  {
-    name: "sign up company",
-    route: "/company/sign-up",
-    component: <SignUpCompany />,
-    display: true,
-    for: "all",
-  },
+  // company only
   {
     name: "home company",
     route: "/company/home",
@@ -83,7 +89,7 @@ const routes2 = [
     route: "/company/add-job",
     component: <AddJob />,
     display: true,
-    for: "all",
+    for: "company",
   },
   {
     name: "history company",
@@ -101,4 +107,48 @@ const routes2 = [
   },
 ];
 
-export default routes2;
+// based on the role the routes will be displayed
+const getNavbarRoutes = () => {
+  const routes = [];
+  const role = localStorage.getItem("role");
+  if (!role) {
+    // push init routes
+    routes.push({
+      name: "Sign In",
+      route: "/sign-in",
+      icon: <Icon>login</Icon>,
+    });
+    routes.push({
+      name: "Sign Up",
+      route: "/applicant/sign-up",
+      icon: <Icon>person</Icon>,
+    });
+  }
+  console.log("role", role);
+  if (role === "CANDIDATE") {
+    routes.push({
+      name: "Home",
+      route: "/applicant/home",
+      icon: <Icon>home</Icon>,
+    });
+    routes.push({
+      name: "history",
+      route: "/applicant/history",
+      icon: <Icon>work</Icon>,
+    });
+  } else if (role === "RECRUITER") {
+    routes.push({
+      name: "Home",
+      route: "/company/home",
+      icon: <Icon>home</Icon>,
+    });
+    routes.push({
+      name: "Add Job",
+      route: "/company/add-job",
+      icon: <Icon>add</Icon>,
+    });
+  }
+  return routes;
+};
+
+export { routes, getNavbarRoutes };

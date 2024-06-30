@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -12,17 +12,16 @@ import theme from "assets/theme";
 import SignInBasic from "pages/Authentication/SignIn";
 import SignUpApplicant from "pages/Authentication/SignUp/Applicant";
 import SignUpCompany from "pages/Authentication/SignUp/Company";
-import HomeApplicant from "pages/Home/Applicant";
 import { ToastContainer } from "react-toastify";
 
 import { convertRole } from "utils/functions";
 import MKBox from "components/MKBox";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 
-import routes from "utils/enums/routes";
-import routes2 from "routes";
+import { routes, getNavbarRoutes } from "utils/enums/routes";
 
 export default function App() {
+  const [navbarRoutes, setNavbarRoutes] = useState([]);
   const { pathname } = useLocation();
 
   const getFilteredRoutes = (allRoutes) =>
@@ -44,13 +43,19 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
+  // Setting the navbar routes when reload
+  useEffect(() => {
+    const currentNavbarRoutes = getNavbarRoutes(routes);
+    setNavbarRoutes(currentNavbarRoutes);
+  }, [pathname]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ToastContainer />
       <MKBox bgColor="#dddeea" minHeight="100vh">
         <MKBox bgColor="white" shadow="sm">
-          <DefaultNavbar routes={routes2} sticky relative transparent />
+          <DefaultNavbar routes={navbarRoutes} sticky relative transparent />
         </MKBox>
         <Routes>
           {localStorage.getItem("token") ? (
@@ -66,7 +71,6 @@ export default function App() {
               <Route path="/sign-in" element={<SignInBasic />} />
               <Route path="/applicant/sign-up" element={<SignUpApplicant />} />
               <Route path="/company/sign-up" element={<SignUpCompany />} />
-              <Route path="/applicant/home" element={<HomeApplicant />} />
               <Route path="*" element={<Navigate to="/sign-in" />} />
             </>
           )}
