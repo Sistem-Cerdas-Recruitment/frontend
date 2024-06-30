@@ -48,7 +48,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ToastContainer />
-      <MKBox bgColor="#dddeea">
+      <MKBox bgColor="#dddeea" minHeight="100vh">
         <MKBox bgColor="white" shadow="sm">
           <DefaultNavbar routes={routes2} sticky relative transparent />
         </MKBox>

@@ -35,20 +35,20 @@ const ActionTableCell = styled(TableCell)({
 
 const statusMap = {
   PENDING: "warning",
-  AWAITING_INTERVIEW: "info",
+  AWAITING_INTERVIEW: "text",
   INTERVIEW: "info",
   AWAITING_EVALUATION: "info",
-  EVALUATED: "info",
+  EVALUATED: "warning",
   ACCEPTED: "success",
   REJECTED: "error",
 };
 
 function convertStatusCompany(status) {
   if (status === "PENDING") return "Need Review";
-  if (status === "AWAITING_INTERVIEW") return "Need Interview";
-  if (["INTERVIEW"].includes(status)) return "Interviewing";
+  if (status === "AWAITING_INTERVIEW") return "Not Yet Interviewed";
   if (status === "INTERVIEW") return "Interviewing";
-  if (["AWAITING_EVALUATION", "EVALUATED"].includes(status)) return "Interview Done";
+  if (status === "AWAITING_EVALUATION") return "Evaluating";
+  if (status === "EVALUATED") return "Need Decision";
   if (status === "ACCEPTED") return "Accepted";
   if (status === "REJECTED") return "Rejected";
   return status;
@@ -112,14 +112,17 @@ function HistoryCompany() {
                         <TableCell align="center" sx={{ flexGrow: 1 }}>
                           Job Title
                         </TableCell>
-                        <TableCell align="center" sx={{ width: "22%" }}>
+                        <TableCell align="center" sx={{ width: "19%" }}>
                           Candidate
                         </TableCell>
-                        <TableCell align="center" sx={{ width: "9%" }}>
+                        <TableCell align="center" sx={{ width: "8%" }}>
+                          CV Relevance
+                        </TableCell>
+                        <TableCell align="center" sx={{ width: "8%" }}>
                           CV Score (0-100)
                         </TableCell>
-                        <TableCell align="center" sx={{ width: "9%" }}>
-                          CV Relevance
+                        <TableCell align="center" sx={{ width: "8%" }}>
+                          Interview Score (0-100)
                         </TableCell>
                         <TableCell align="center" sx={{ width: "17%" }}>
                           Status
@@ -128,6 +131,22 @@ function HistoryCompany() {
                       </TableRow>
                     </TableHead>
                     <TableBody display={loading ? "none" : "table-row-group"}>
+                      {!loading && applications.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6}>
+                            {/* items at center center */}
+                            <MKBox
+                              display="flex"
+                              justifyContent="center"
+                              alignItems="center"
+                              minHeight="30vh"
+                              pb={3}
+                            >
+                              <MKTypography variant="h4">No applicant applied</MKTypography>
+                            </MKBox>
+                          </TableCell>
+                        </TableRow>
+                      )}
                       {applications.map((application) => (
                         <TableRow key={application.id}>
                           <TableCell>
@@ -140,11 +159,6 @@ function HistoryCompany() {
                             </MKTypography>
                           </TableCell>
                           <TableCell>{application.userName}</TableCell>
-                          <TableCell align="center">
-                            <MKTypography variant="body2" color="info">
-                              {convertFloatToHundredBase(application.relevanceScore)}
-                            </MKTypography>
-                          </TableCell>
                           <TableCell align="center">
                             <MKBox
                               display="flex"
@@ -159,6 +173,18 @@ function HistoryCompany() {
                                 {application.relevance ? <CheckIcon /> : <XMarkIcon />}
                               </SvgIcon>
                             </MKBox>
+                          </TableCell>
+                          <TableCell align="center">
+                            <MKTypography variant="body2" color="info">
+                              {convertFloatToHundredBase(application.relevanceScore)}
+                            </MKTypography>
+                          </TableCell>
+                          <TableCell align="center">
+                            <MKTypography variant="body2" color="info">
+                              {application.interviewScore && application.interviewScore != 0
+                                ? application.interviewScore.toFixed(2)
+                                : "N/A"}
+                            </MKTypography>
                           </TableCell>
                           <TableCell>
                             <MKBox

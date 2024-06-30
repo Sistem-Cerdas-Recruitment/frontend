@@ -33,8 +33,8 @@ const ActionTableCell = styled(TableCell)({
 });
 
 const statusMap = {
-  PENDING: "warning",
-  AWAITING_INTERVIEW: "info",
+  PENDING: "info",
+  AWAITING_INTERVIEW: "warning",
   INTERVIEW: "info",
   AWAITING_EVALUATION: "info",
   EVALUATED: "info",
@@ -145,6 +145,22 @@ function HistoryApplicant() {
                       </TableRow>
                     </TableHead>
                     <TableBody display={loading ? "none" : "table-row-group"}>
+                      {!loading && applications.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6}>
+                            {/* items at center center */}
+                            <MKBox
+                              display="flex"
+                              justifyContent="center"
+                              alignItems="center"
+                              minHeight="30vh"
+                              pb={3}
+                            >
+                              <MKTypography variant="h4">No job applied</MKTypography>
+                            </MKBox>
+                          </TableCell>
+                        </TableRow>
+                      )}
                       {applications.map((application) => (
                         <TableRow key={application.id}>
                           <TableCell>

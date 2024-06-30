@@ -17,6 +17,7 @@ import {
   Paper,
   Checkbox,
   InputAdornment,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/system";
 
@@ -30,7 +31,6 @@ import {
   PencilIcon,
   PlayIcon,
   StopIcon,
-  TrashIcon,
   PlusIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
@@ -146,16 +146,32 @@ function HomeCompany() {
                   <NewTableCell sx={{ width: "80px", paddingLeft: "20px" }}>
                     Open Status
                   </NewTableCell>
-                  <TableCell align="center" sx={{ flexGrow: 1 }}>
+                  <TableCell align="center" sx={{ flexGrow: 1, minWidth: "450px" }}>
                     Job
                   </TableCell>
                   <NewTableCell>Applied</NewTableCell>
                   <NewTableCell>Interview Offered</NewTableCell>
                   <NewTableCell>Interviewed</NewTableCell>
-                  <NewTableCell sx={{ width: "280px" }}>Actions</NewTableCell>
+                  <NewTableCell sx={{ width: "200px" }}>Actions</NewTableCell>
                 </TableRow>
               </TableHead>
               <TableBody display={loading ? "none" : "table-row-group"}>
+                {!loading && jobs.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      {/* items at center center */}
+                      <MKBox
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        minHeight="30vh"
+                        pb={3}
+                      >
+                        <MKTypography variant="h4">No job posted</MKTypography>
+                      </MKBox>
+                    </TableCell>
+                  </TableRow>
+                )}
                 {jobs.map((job, index) => (
                   <TableRow key={index}>
                     <NewTableCell sx={{ width: "50px", paddingLeft: "20px" }}>
@@ -189,27 +205,40 @@ function HomeCompany() {
                     <NewTableCell>{job.interviewed}</NewTableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={1.5} justifyContent="center">
-                        <IconButton onClick={() => navigate(`/company/history/${job.id}`)}>
-                          <SvgIcon as={UsersIcon} />
-                        </IconButton>
-                        <IconButton onClick={() => navigate(`/detail-vacancy/${job.id}`)}>
-                          <SvgIcon as={EyeIcon} />
-                        </IconButton>
-                        <IconButton onClick={() => editJob(job.id)}>
-                          <SvgIcon as={PencilIcon} />
-                        </IconButton>
+                        <Tooltip title="View applicants">
+                          <IconButton onClick={() => navigate(`/company/history/${job.id}`)}>
+                            <SvgIcon as={UsersIcon} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="View job">
+                          <IconButton onClick={() => navigate(`/detail-vacancy/${job.id}`)}>
+                            <SvgIcon as={EyeIcon} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Edit job">
+                          <IconButton onClick={() => editJob(job.id)}>
+                            <SvgIcon as={PencilIcon} />
+                          </IconButton>
+                        </Tooltip>
                         {job.status === "OPEN" ? (
-                          <IconButton onClick={() => openJob(job.id)}>
-                            <SvgIcon as={PlayIcon} />
-                          </IconButton>
+                          <Tooltip title="Close job">
+                            <IconButton onClick={() => openJob(job.id)}>
+                              <SvgIcon as={StopIcon} />
+                            </IconButton>
+                          </Tooltip>
                         ) : (
-                          <IconButton onClick={() => closeJob(job.id)}>
-                            <SvgIcon as={StopIcon} />
-                          </IconButton>
+                          <Tooltip title="Open job">
+                            <IconButton onClick={() => closeJob(job.id)}>
+                              <SvgIcon as={PlayIcon} />
+                            </IconButton>
+                          </Tooltip>
                         )}
-                        <IconButton onClick={() => deleteJob(job.id)}>
-                          <SvgIcon as={TrashIcon} />
-                        </IconButton>
+                        {/* Delete Job Not Needed Now */}
+                        {/* <Tooltip title="Delete job">
+                          <IconButton onClick={() => deleteJob(job.id)}>
+                            <SvgIcon as={TrashIcon} />
+                          </IconButton>
+                        </Tooltip> */}
                       </Stack>
                     </TableCell>
                   </TableRow>

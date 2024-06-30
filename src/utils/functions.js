@@ -1,11 +1,22 @@
 function convertNumber2Money(number) {
   // 1000000 => "IDR 1.000.000" without decimal
-  return `IDR ${new Intl.NumberFormat("id-ID").format(number)}`;
+  return number && number != 0 ? `IDR ${new Intl.NumberFormat("id-ID").format(number)}` : "IDR 0";
 }
 
 function convertSalaryRange(minSalary, maxSalary) {
   // [1000000, 5000000] => "IDR 1.000.000 - IDR 5.000.000"
-  return `${convertNumber2Money(minSalary)} - ${convertNumber2Money(maxSalary)}`;
+  return minSalary && maxSalary && minSalary > 0 && maxSalary > 0
+    ? `${convertNumber2Money(minSalary)} - ${convertNumber2Money(maxSalary)}`
+    : "IDR 0 - IDR 0";
+}
+
+const convertFloatToHundredBase = (float) => {
+  // 0.108856 => "10.89"
+  return float && float != 0.0 ? `${(Number(float) * 100).toFixed(2)}` : "0.00";
+};
+
+function convertNumber2Percentage(float) {
+  return float && float != 0.0 ? `${(Number(float) * 100).toFixed(2)}%` : "0.00%";
 }
 
 function convertDateString(timestamp) {
@@ -81,11 +92,6 @@ function convertBe2FeJob(resData) {
   };
 }
 
-const convertFloatToHundredBase = (float) => {
-  // 0.108856 => "10.89"
-  return `${(float * 100).toFixed(2)}`;
-};
-
 export {
   convertNumber2Money,
   convertSalaryRange,
@@ -96,4 +102,5 @@ export {
   convertFe2BeJob,
   convertBe2FeJob,
   convertFloatToHundredBase,
+  convertNumber2Percentage,
 };

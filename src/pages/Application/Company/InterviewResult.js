@@ -1,17 +1,17 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import propTypes from "prop-types";
 import { useParams, useLocation } from "react-router-dom";
 import { Container, SvgIcon } from "@mui/material";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 
 import { CpuChipIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { convertNumber2Percentage } from "utils/functions";
 
-const InterviewResult = ({ interviewScore, isEvaluationDone }) => {
+const InterviewResult = () => {
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const { id: applicationId } = useParams();
   const [history, setHistory] = useState([]);
 
@@ -19,6 +19,7 @@ const InterviewResult = ({ interviewScore, isEvaluationDone }) => {
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
+    console.log();
   }, [pathname]);
 
   // fetch last interview chat logs
@@ -37,6 +38,10 @@ const InterviewResult = ({ interviewScore, isEvaluationDone }) => {
       });
   }, []);
 
+  const checkIf25words = (text) => {
+    return text.split(" ").length <= 25;
+  };
+
   return (
     <Container>
       <MKBox>
@@ -54,12 +59,12 @@ const InterviewResult = ({ interviewScore, isEvaluationDone }) => {
             {/* Title Section */}
             <MKBox display="flex" flexDirection="column" sx={{ position: "relative" }} py={2}>
               <MKTypography variant="h3" sx={{ position: "absolute", top: 10, right: 50 }}>
-                {isEvaluationDone ? interviewScore : "NA"} / 100
+                {state.score || "NA"} / 100
               </MKTypography>
               <MKTypography variant="h3" mb={3} align="center">
                 Interview Result
               </MKTypography>
-              {!isEvaluationDone && (
+              {!state.score && (
                 <MKTypography variant="h6" sx={{ fontWeight: 500, color: "grey" }} align="center">
                   This interview is on evaluation process <br /> Please wait for within 24 hours to
                   view score and anti cheat detection result
@@ -115,20 +120,35 @@ const InterviewResult = ({ interviewScore, isEvaluationDone }) => {
                     </span>{" "}
                     with{" "}
                     <span style={{ fontWeight: 600 }}>{item.confidence || "No confidence"}</span>{" "}
-                    confidence
                   </MKTypography>
-                  <MKTypography variant="body2">
-                    Probability value, <br />
-                    Main model:{" "}
-                    <span style={{ fontWeight: 600 }}>
-                      {item.main_model_probability || "No probability"}
-                    </span>{" "}
-                    <br />
-                    Second Model:{" "}
-                    <span style={{ fontWeight: 600 }}>
-                      {item.secondary_model_prediction || "No secondary prediction"}
-                    </span>
-                  </MKTypography>
+                  <MKBox display="flex" flexDirection="row" justifyContent="space-between" gap={2}>
+                    <MKTypography variant="body2">
+                      Probability value, <br />
+                      Main model:{" "}
+                      <span style={{ fontWeight: 600 }}>
+                        {convertNumber2Percentage(item.main_model_probability) || "No probability"}
+                      </span>{" "}
+                      <br />
+                      Second Model:{" "}
+                      <span style={{ fontWeight: 600 }}>
+                        {convertNumber2Percentage(item.secondary_model_prediction) ||
+                          "No secondary prediction"}
+                      </span>
+                    </MKTypography>
+                    {checkIf25words(item.answer) && (
+                      <MKTypography
+                        variant="caption"
+                        width="50%"
+                        sx={{ whiteSpace: "pre-wrap", alignSelf: "center" }}
+                        pt={1}
+                      >
+                        Disclaimer: This answer is{" "}
+                        <span style={{ color: "red" }}> less than 25 words</span> Therefore, the
+                        anti cheat detection result may not be accurate due to the lack of data
+                        training.
+                      </MKTypography>
+                    )}
+                  </MKBox>
                 </MKBox>
               </MKBox>
             ))}
@@ -138,16 +158,6 @@ const InterviewResult = ({ interviewScore, isEvaluationDone }) => {
       </MKBox>
     </Container>
   );
-};
-
-InterviewResult.propTypes = {
-  interviewScore: propTypes.number,
-  isEvaluationDone: propTypes.bool,
-};
-
-InterviewResult.defaultProps = {
-  interviewScore: 0,
-  isEvaluationDone: false,
 };
 
 export default InterviewResult;

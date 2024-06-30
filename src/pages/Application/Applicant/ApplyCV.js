@@ -33,7 +33,6 @@ const ApplyCV = () => {
   const [onEdit, setOnEdit] = useState(true);
   const [eduEditIndexs, setEduEditIndexs] = useState([]);
   const [expEditIndexs, setExpEditIndexs] = useState([]);
-  const [onEditIndex, setOnEditIndex] = useState([]);
 
   const [skills, setSkills] = useState([]);
   const [experiences, setExperiences] = useState([]);
@@ -66,7 +65,7 @@ const ApplyCV = () => {
         })
         .then((res) => {
           toast.success("Application submitted successfully");
-          // go to history page
+          navigate("/applicant/history");
           console.log(res);
         })
         .catch((error) => {
@@ -393,7 +392,7 @@ const ApplyCV = () => {
                   <MKTypography variant="body2" sx={{ color: "grey" }}>
                     Please wait while we extract your CV data
                   </MKTypography>
-                  <SpinningBar size={100} />
+                  <SpinningBar />
                 </MKBox>
               )
             )}
@@ -447,7 +446,6 @@ const ApplyCV = () => {
             history page.
           </MKTypography>
           <MKBox display="flex" justifyContent="center" gap={10} mt={2}>
-            {/* onclick go to history page */}
             <MKButton
               variant="contained"
               color="primary"

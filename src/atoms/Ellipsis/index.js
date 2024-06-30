@@ -21,30 +21,48 @@ const ActionDropdown = ({ application }) => {
   const [dropdownEl, setDropdownEl] = useState("");
   const navigate = useNavigate();
   // eslint-disable-next-line no-undef
-  const hurl = process.env.REACT_APP_API_URL;
+  const url = process.env.REACT_APP_API_URL;
 
-  function inviteInterview() {
-    if (application.status !== "PENDING") {
-      return;
+  function nextStep(type) {
+    let msg = "";
+    let isNext = false;
+    switch (type) {
+      case "invite interview":
+        if (application.status !== "PENDING") return;
+        msg = "Interview invitation sent";
+        isNext = true;
+        break;
+      case "accept":
+        if (application.status !== "EVALUATED") return;
+        msg = "Candidate accepted";
+        isNext = true;
+        break;
+      case "reject":
+        if (application.status !== "EVALUATED") return;
+        msg = "Candidate rejected";
+        isNext = false;
+        break;
+      default:
+        break;
     }
     const data = {
       job_application_id: application.id,
-      is_accepted: true,
+      is_accepted: isNext,
+    };
+    const headers = {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     };
     axios
-      .patch(`${hurl}/api/job/application/status`, data, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+      .patch(`${url}/api/job/application/status`, data, { headers })
       .then((res) => {
         window.location.reload();
-        toast.success("Interview invitation sent");
+        toast.success(msg);
         console.log(res);
       })
       .catch((err) => {
         console.log(err);
       });
+    console.log(type);
   }
 
   const actionItems = [
@@ -60,14 +78,18 @@ const ActionDropdown = ({ application }) => {
       name: "Invite Interview",
       description: "Invite the candidate for an interview",
       icon: <ChatBubbleOvalLeftEllipsisIcon />,
-      action: inviteInterview,
+      action: () => {
+        nextStep("invite interview");
+      },
     },
     {
       name: "Interview Details",
       description: "Interview Logs and Result Analysis",
       icon: <ChatBubbleLeftRightIcon />,
       action: () => {
-        navigate(`/company/interview-result/${application.id}`);
+        navigate(`/company/interview-result/${application.id}`, {
+          state: { score: application.interviewScore },
+        });
       },
     },
     {
@@ -75,7 +97,7 @@ const ActionDropdown = ({ application }) => {
       description: "Accept the candidate",
       icon: <CheckCircleIcon />,
       action: () => {
-        console.log("Accept");
+        nextStep("accept");
       },
     },
     {
@@ -83,7 +105,7 @@ const ActionDropdown = ({ application }) => {
       description: "Reject the candidate",
       icon: <XCircleIcon />,
       action: () => {
-        console.log("Reject");
+        nextStep("reject");
       },
     },
   ];
@@ -114,7 +136,7 @@ const ActionDropdown = ({ application }) => {
   return (
     <Box onMouseLeave={() => setDropdown(false)}>
       <IconButton onMouseEnter={() => setDropdown(true)} ref={setDropdownEl}>
-        <SvgIcon component={EllipsisVerticalIcon} style={{ width: 24, height: 24 }} />
+        <SvgIcon component={EllipsisVerticalIcon} style={{ width: 24, height: 24 }} color="black" />
       </IconButton>
       <Popper
         anchorEl={dropdownEl}

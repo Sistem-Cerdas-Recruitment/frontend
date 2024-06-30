@@ -19,9 +19,9 @@ const SpinningBar = (props) => {
       component={ArrowPathIcon}
       py={3}
       sx={{
-        width: 100,
-        height: 100,
-        color: "grey",
+        width: size,
+        height: size,
+        color: color,
         animation: `${spin} 3s linear infinite`,
       }}
     />
@@ -34,7 +34,7 @@ SpinningBar.propTypes = {
 };
 
 SpinningBar.defaultProps = {
-  size: 50,
+  size: 100,
   color: "grey",
 };
 
