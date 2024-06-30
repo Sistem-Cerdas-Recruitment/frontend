@@ -15,6 +15,10 @@ import {
   SvgIcon,
   Paper,
   InputAdornment,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import { styled } from "@mui/system";
 
@@ -35,7 +39,7 @@ const ActionTableCell = styled(TableCell)({
 const statusMap = {
   PENDING: "info",
   AWAITING_INTERVIEW: "warning",
-  INTERVIEW: "info",
+  INTERVIEW: "text",
   AWAITING_EVALUATION: "info",
   EVALUATED: "info",
   ACCEPTED: "success",
@@ -57,7 +61,10 @@ function HistoryApplicant() {
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
   const [applications, setApplications] = useState([]);
-  const [query, setQuery] = useState("");
+  const [filteredApplications, setFilteredApplications] = useState([]);
+  const [titleQuery, setTitleQuery] = useState("");
+  const [companyQuery, setCompanyQuery] = useState("");
+  const [statusQuery, setStatusQuery] = useState("All");
   const [loading, setLoading] = useState(false);
 
   const fetchApplications = () => {
@@ -69,6 +76,7 @@ function HistoryApplicant() {
       })
       .then((res) => {
         setApplications(res.data.data);
+        setFilteredApplications(res.data.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -99,6 +107,18 @@ function HistoryApplicant() {
   };
 
   useEffect(() => {
+    let filtered = applications.filter((application) => {
+      if (!application.jobTitle.toLowerCase().includes(titleQuery.toLowerCase())) return false;
+      if (!application.recruiterName.toLowerCase().includes(companyQuery.toLowerCase()))
+        return false;
+      if (statusQuery !== "All" && convertStatusApplicant(application.status) !== statusQuery)
+        return false;
+      return true;
+    });
+    setFilteredApplications(filtered);
+  }, [titleQuery, companyQuery, statusQuery]);
+
+  useEffect(() => {
     setLoading(true);
     fetchApplications();
   }, []);
@@ -110,22 +130,77 @@ function HistoryApplicant() {
           <MKBox p={2}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <MKInput
-                  fullWidth
-                  placeholder="Search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SvgIcon component={MagnifyingGlassIcon} sx={{ width: 24, height: 24 }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <MKBox
+                  display="flex"
+                  flexDirection="column"
+                  bgColor="white"
+                  py={2}
+                  px={4}
+                  borderRadius={15}
+                  gap={3}
+                >
+                  <MKTypography variant="h3">Application History</MKTypography>
+                  <MKBox display="flex" justifyContent="space-between" alignItems="center" gap={2}>
+                    <MKBox flexGrow={1}>
+                      <MKInput
+                        fullWidth
+                        label="Title"
+                        placeholder="Search by job title"
+                        value={titleQuery}
+                        onChange={(e) => setTitleQuery(e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SvgIcon
+                                component={MagnifyingGlassIcon}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </MKBox>
+                    <MKBox minWidth="30%">
+                      <MKInput
+                        fullWidth
+                        label="Company"
+                        placeholder="Search by company name"
+                        value={companyQuery}
+                        onChange={(e) => setCompanyQuery(e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SvgIcon
+                                component={MagnifyingGlassIcon}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </MKBox>
+                    <FormControl sx={{ minWidth: "20%" }}>
+                      <InputLabel id="status">Status</InputLabel>
+                      <Select
+                        labelId="status"
+                        label="Status"
+                        value={statusQuery}
+                        onChange={(e) => setStatusQuery(e.target.value)}
+                      >
+                        <MenuItem value="All">All</MenuItem>
+                        <MenuItem value="CV on Review">CV on Review</MenuItem>
+                        <MenuItem value="Need Interview">Need Interview</MenuItem>
+                        <MenuItem value="Interviewing">Interviewing</MenuItem>
+                        <MenuItem value="Interview Done">Interview Done</MenuItem>
+                        <MenuItem value="Accepted">Accepted</MenuItem>
+                        <MenuItem value="Rejected">Rejected</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </MKBox>
+                </MKBox>
               </Grid>
               <Grid item xs={12}>
-                <TableContainer component={Paper} sx={{ padding: 2 }}>
+                <TableContainer component={Paper} sx={{ padding: "10px 30px 25px 20px" }}>
                   <Table>
                     <TableHead sx={{ display: "table-header-group" }}>
                       <TableRow>
@@ -145,23 +220,26 @@ function HistoryApplicant() {
                       </TableRow>
                     </TableHead>
                     <TableBody display={loading ? "none" : "table-row-group"}>
-                      {!loading && applications.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={6}>
-                            {/* items at center center */}
-                            <MKBox
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                              minHeight="30vh"
-                              pb={3}
-                            >
-                              <MKTypography variant="h4">No job applied</MKTypography>
-                            </MKBox>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                      {applications.map((application) => (
+                      {!loading &&
+                        (applications.length === 0 || filteredApplications.length === 0) && (
+                          <TableRow>
+                            <TableCell colSpan={6}>
+                              {/* items at center center */}
+                              <MKBox
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                minHeight="30vh"
+                                pb={3}
+                              >
+                                <MKTypography variant="h4">
+                                  {applications.length === 0 ? "No job applied" : "No Result"}
+                                </MKTypography>
+                              </MKBox>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      {filteredApplications.map((application) => (
                         <TableRow key={application.id}>
                           <TableCell>
                             <MKTypography

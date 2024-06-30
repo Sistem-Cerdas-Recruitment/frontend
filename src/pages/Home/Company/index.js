@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 import {
   Container,
-  Input,
   Table,
   TableBody,
   TableHead,
@@ -18,12 +17,14 @@ import {
   Checkbox,
   InputAdornment,
   Tooltip,
+  FormControlLabel,
 } from "@mui/material";
 import { styled } from "@mui/system";
 
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 import MKButton from "components/MKButton";
+import MKInput from "components/MKInput";
 
 import {
   MagnifyingGlassIcon,
@@ -49,20 +50,45 @@ function HomeCompany() {
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [query, setQuery] = useState("");
+  const [openOnly, setOpenOnly] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const editJob = (id) => {
     console.log("Edit job", id);
   };
-  const openJob = (id) => {
+
+  const updateStatus = (id, type) => {
+    let status = true;
+    switch (type) {
+      case "open":
+        status = true;
+        break;
+      case "close":
+        status = false;
+        break;
+      default:
+        status = true;
+    }
+    axios
+      .patch(
+        `${url}/api/job/status`,
+        { jobId: id, status: status },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res.data);
+        fetchJobs();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     console.log("Open job", id);
-  };
-  const closeJob = (id) => {
-    console.log("Close job", id);
-  };
-  const deleteJob = (id) => {
-    console.log("Delete job", id);
   };
 
   const fetchJobs = () => {
@@ -74,6 +100,7 @@ function HomeCompany() {
       })
       .then((res) => {
         setJobs(res.data.data);
+        setFilteredJobs(res.data.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -86,41 +113,75 @@ function HomeCompany() {
     fetchJobs();
   }, []);
 
+  useEffect(() => {
+    let filtered = jobs.filter((job) => {
+      if (openOnly && job.status !== "OPEN") return false;
+      if (!job.title.toLowerCase().includes(query.toLowerCase())) return false;
+      return true;
+    });
+    setFilteredJobs(filtered);
+  }, [query, openOnly]);
+
   return (
     <Container>
       <Stack direction="column" spacing={2} mt={3} minHeight="calc(100vh - 98px)">
         {/* Search bar and add button */}
-        <Stack direction="row" spacing={5} justifyContent="space-between" px={1} pb={1}>
+        <Stack
+          direction="row"
+          spacing={5}
+          justifyContent="space-between"
+          alignItems="center"
+          px={1.2}
+        >
           <MKTypography variant="h3" sx={{ width: "40%" }}>
             {jobs.length} Job Vancacies
           </MKTypography>
-          <Stack
-            direction="row"
-            spacing={5}
-            justifyContent="flex-end"
-            sx={{ flexGrow: 1 }}
-            bgcolor="white"
-          >
-            <Input
-              sx={{ width: "50%" }}
-              placeholder="Search job"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  console.log("Query", query);
+          <Stack direction="row" spacing={5} justifyContent="flex-end" sx={{ flexGrow: 1 }}>
+            <MKBox
+              display="flex"
+              flexDirection="row"
+              bgColor="white"
+              py={1.5}
+              px={1.5}
+              borderRadius={15}
+              sx={{ width: "100%" }}
+              gap={3}
+            >
+              <MKInput
+                sx={{ flexGrow: 1 }}
+                label="Title"
+                placeholder="Search job title"
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    console.log("Query", query);
+                  }
+                }}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <SvgIcon color="action" fontSize="small">
+                      <MagnifyingGlassIcon />
+                    </SvgIcon>
+                  </InputAdornment>
                 }
-              }}
-              startAdornment={
-                <InputAdornment position="start">
-                  <SvgIcon color="action" fontSize="small">
-                    <MagnifyingGlassIcon />
-                  </SvgIcon>
-                </InputAdornment>
-              }
-            />
+              />
+              <FormControlLabel
+                label="Open only"
+                control={
+                  <Checkbox
+                    checked={openOnly}
+                    onChange={(event) => {
+                      setOpenOnly(event.target.checked);
+                    }}
+                    name="openOnly"
+                    color="primary"
+                  />
+                }
+              />
+            </MKBox>
             <MKButton
               variant="contained"
               color="primary"
@@ -138,7 +199,7 @@ function HomeCompany() {
         <MKBox>
           <TableContainer
             compoment={Paper}
-            style={{ paddingLeft: 0, paddingRight: 0, paddingTop: 10 }}
+            style={{ paddingLeft: 0, paddingRight: 4, paddingTop: 10, paddingBottom: 15 }}
           >
             <Table>
               <TableHead sx={{ display: "table-header-group" }}>
@@ -156,7 +217,7 @@ function HomeCompany() {
                 </TableRow>
               </TableHead>
               <TableBody display={loading ? "none" : "table-row-group"}>
-                {!loading && jobs.length === 0 && (
+                {!loading && (jobs.length === 0 || filteredJobs.length === 0) && (
                   <TableRow>
                     <TableCell colSpan={6}>
                       {/* items at center center */}
@@ -167,12 +228,14 @@ function HomeCompany() {
                         minHeight="30vh"
                         pb={3}
                       >
-                        <MKTypography variant="h4">No job posted</MKTypography>
+                        <MKTypography variant="h4">
+                          {jobs.length === 0 ? "No job posted" : "No Result"}
+                        </MKTypography>
                       </MKBox>
                     </TableCell>
                   </TableRow>
                 )}
-                {jobs.map((job, index) => (
+                {filteredJobs.map((job, index) => (
                   <TableRow key={index}>
                     <NewTableCell sx={{ width: "50px", paddingLeft: "20px" }}>
                       {job.status === "OPEN" ? (
@@ -195,7 +258,7 @@ function HomeCompany() {
                         ) : (
                           <MKTypography variant="body2">
                             <span style={{ color: "red" }}>Closed </span>at{" "}
-                            {convertDateString(job.dateClosed)}
+                            {convertDateString(job.closedAt)}
                           </MKTypography>
                         )}
                       </Stack>
@@ -206,7 +269,13 @@ function HomeCompany() {
                     <TableCell align="center">
                       <Stack direction="row" spacing={1.5} justifyContent="center">
                         <Tooltip title="View applicants">
-                          <IconButton onClick={() => navigate(`/company/history/${job.id}`)}>
+                          <IconButton
+                            onClick={() =>
+                              navigate(`/company/history/${job.id}`, {
+                                state: { title: job.title },
+                              })
+                            }
+                          >
                             <SvgIcon as={UsersIcon} />
                           </IconButton>
                         </Tooltip>
@@ -222,13 +291,13 @@ function HomeCompany() {
                         </Tooltip>
                         {job.status === "OPEN" ? (
                           <Tooltip title="Close job">
-                            <IconButton onClick={() => openJob(job.id)}>
+                            <IconButton onClick={() => updateStatus(job.id, "close")}>
                               <SvgIcon as={StopIcon} />
                             </IconButton>
                           </Tooltip>
                         ) : (
                           <Tooltip title="Open job">
-                            <IconButton onClick={() => closeJob(job.id)}>
+                            <IconButton onClick={() => updateStatus(job.id, "open")}>
                               <SvgIcon as={PlayIcon} />
                             </IconButton>
                           </Tooltip>

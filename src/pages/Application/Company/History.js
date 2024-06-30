@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 
 import {
   Container,
@@ -14,6 +14,12 @@ import {
   SvgIcon,
   Paper,
   InputAdornment,
+  FormControl,
+  FormControlLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  InputLabel,
 } from "@mui/material";
 import { styled } from "@mui/system";
 
@@ -31,6 +37,12 @@ const ActionTableCell = styled(TableCell)({
   textAlign: "center",
   padding: "0.75rem 0.5rem",
   width: "9%",
+});
+
+const StatusTableCell = styled(TableCell)({
+  textAlign: "center",
+  padding: "0.75rem 1rem",
+  width: "12%",
 });
 
 const statusMap = {
@@ -56,10 +68,16 @@ function convertStatusCompany(status) {
 
 function HistoryCompany() {
   const { jobId } = useParams();
+  const location = useLocation();
+  const title = location.state.title;
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
   const [applications, setApplications] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]);
   const [query, setQuery] = useState("");
+  const [statusQuery, setStatusQuery] = useState("All");
+  const [relevanceOnly, setRelevanceOnly] = useState(false);
+  const [sortBy, setSortBy] = useState("None");
   const [loading, setLoading] = useState(false);
 
   const fetchApplications = () => {
@@ -71,12 +89,31 @@ function HistoryCompany() {
       })
       .then((res) => {
         setApplications(res.data.data);
+        setFilteredApplications(res.data.data);
         setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
   };
+
+  useEffect(() => {
+    let filtered = applications.filter((application) => {
+      if (relevanceOnly && !application.relevance) return false;
+      if (!application.userName.toLowerCase().includes(query.toLowerCase())) return false;
+      if (statusQuery !== "All" && convertStatusCompany(application.status) !== statusQuery)
+        return false;
+      return true;
+    });
+
+    if (sortBy === "CV Score") {
+      filtered = filtered.sort((a, b) => b.relevanceScore - a.relevanceScore);
+    } else if (sortBy === "Interview Score") {
+      filtered = filtered.sort((a, b) => b.interviewScore - a.interviewScore);
+    }
+
+    setFilteredApplications(filtered);
+  }, [query, statusQuery, relevanceOnly, sortBy]);
 
   useEffect(() => {
     setLoading(true);
@@ -90,74 +127,133 @@ function HistoryCompany() {
           <MKBox p={2}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <MKInput
-                  fullWidth
-                  placeholder="Search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SvgIcon component={MagnifyingGlassIcon} sx={{ width: 24, height: 24 }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <MKBox
+                  display="flex"
+                  flexDirection="column"
+                  bgColor="white"
+                  py={2}
+                  px={4}
+                  borderRadius={15}
+                  gap={2.5}
+                >
+                  <MKBox
+                    display="flex"
+                    flexDirection="row"
+                    alignSelf="flex-start"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <MKTypography variant="h3">Application History</MKTypography>
+                    <MKTypography variant="h4" color="grey">
+                      :
+                    </MKTypography>
+                    <MKTypography variant="h4" color="primary">
+                      {title}
+                    </MKTypography>
+                  </MKBox>
+                  <MKBox display="flex" justifyContent="space-between" alignItems="center" gap={2}>
+                    <MKBox flexGrow={1}>
+                      <MKInput
+                        fullWidth
+                        label="Candidate Name"
+                        placeholder="Search candidate name"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SvgIcon
+                                component={MagnifyingGlassIcon}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </MKBox>
+                    <FormControl sx={{ minWidth: "20%" }}>
+                      <InputLabel id="status">Status</InputLabel>
+                      <Select
+                        labelId="status"
+                        label="Status"
+                        value={statusQuery}
+                        onChange={(e) => setStatusQuery(e.target.value)}
+                      >
+                        <MenuItem value="All">All</MenuItem>
+                        <MenuItem value="Need Review">Need Review</MenuItem>
+                        <MenuItem value="Not Yet Interviewed">Not Yet Interviewed</MenuItem>
+                        <MenuItem value="Interviewing">Interviewing</MenuItem>
+                        <MenuItem value="Evaluating">Evaluating</MenuItem>
+                        <MenuItem value="Need Decision">Need Decision</MenuItem>
+                        <MenuItem value="Accepted">Accepted</MenuItem>
+                        <MenuItem value="Rejected">Rejected</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ minWidth: "15%" }}>
+                      <InputLabel id="sortBy">Sort By</InputLabel>
+                      <Select
+                        labelId="sortBy"
+                        label="Sort By"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                      >
+                        <MenuItem value="None">None</MenuItem>
+                        <MenuItem value="CV Score">CV Score</MenuItem>
+                        <MenuItem value="Interview Score">Interview Score</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControlLabel
+                      label="Relevance Only"
+                      control={
+                        <Checkbox
+                          sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
+                          checked={relevanceOnly}
+                          onChange={(e) => setRelevanceOnly(e.target.checked)}
+                        />
+                      }
+                    />
+                  </MKBox>
+                </MKBox>
               </Grid>
               <Grid item xs={12}>
-                <TableContainer component={Paper} sx={{ padding: 2 }}>
+                <TableContainer component={Paper} sx={{ padding: "10px 20px 25px" }}>
                   <Table>
                     <TableHead sx={{ display: "table-header-group" }}>
                       <TableRow>
                         <TableCell align="center" sx={{ flexGrow: 1 }}>
-                          Job Title
-                        </TableCell>
-                        <TableCell align="center" sx={{ width: "19%" }}>
                           Candidate
                         </TableCell>
-                        <TableCell align="center" sx={{ width: "8%" }}>
-                          CV Relevance
-                        </TableCell>
-                        <TableCell align="center" sx={{ width: "8%" }}>
-                          CV Score (0-100)
-                        </TableCell>
-                        <TableCell align="center" sx={{ width: "8%" }}>
-                          Interview Score (0-100)
-                        </TableCell>
-                        <TableCell align="center" sx={{ width: "17%" }}>
+                        <StatusTableCell align="center">CV Relevance</StatusTableCell>
+                        <StatusTableCell align="center">CV Score</StatusTableCell>
+                        <StatusTableCell align="center">Interview Score</StatusTableCell>
+                        <TableCell align="center" sx={{ width: "21%" }}>
                           Status
                         </TableCell>
                         <ActionTableCell>Actions</ActionTableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody display={loading ? "none" : "table-row-group"}>
-                      {!loading && applications.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={6}>
-                            {/* items at center center */}
-                            <MKBox
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                              minHeight="30vh"
-                              pb={3}
-                            >
-                              <MKTypography variant="h4">No applicant applied</MKTypography>
-                            </MKBox>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                      {applications.map((application) => (
+                      {!loading &&
+                        (applications.length === 0 || filteredApplications.length === 0) && (
+                          <TableRow>
+                            <TableCell colSpan={6}>
+                              {/* items at center center */}
+                              <MKBox
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                minHeight="30vh"
+                                pb={3}
+                              >
+                                <MKTypography variant="h4">
+                                  {applications.length === 0 ? "No applicant applied" : "No result"}{" "}
+                                </MKTypography>
+                              </MKBox>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      {filteredApplications.map((application) => (
                         <TableRow key={application.id}>
-                          <TableCell>
-                            <MKTypography
-                              variant="body2"
-                              color="info"
-                              sx={{ fontWeight: "bold", fontDecoration: "underline" }}
-                            >
-                              {application.jobTitle}
-                            </MKTypography>
-                          </TableCell>
                           <TableCell>{application.userName}</TableCell>
                           <TableCell align="center">
                             <MKBox
