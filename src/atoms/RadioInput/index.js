@@ -21,6 +21,7 @@ const RadioInput = (props) => {
             key={option}
             value={option}
             control={<Radio />}
+            sx={{ "& .MuiSvgIcon-root": { width: 20, height: 20 } }}
             label={<MKTypography variant="body2">{option}</MKTypography>}
           />
         ))}

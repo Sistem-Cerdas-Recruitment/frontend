@@ -133,19 +133,20 @@ function HomeCompany() {
           alignItems="center"
           px={1.2}
         >
-          <MKTypography variant="h3" sx={{ width: "40%" }}>
+          <MKTypography variant="h3" sx={{ width: "25%" }}>
             {jobs.length} Job Vancacies
           </MKTypography>
-          <Stack direction="row" spacing={5} justifyContent="flex-end" sx={{ flexGrow: 1 }}>
+          <Stack direction="row" spacing={5} sx={{ width: "60%" }}>
             <MKBox
               display="flex"
               flexDirection="row"
+              alignItems="center"
               bgColor="white"
-              py={1.5}
+              py={0.7}
               px={1.5}
               borderRadius={15}
-              sx={{ width: "100%" }}
-              gap={3}
+              sx={{ flexGrow: 1 }}
+              gap={2}
             >
               <MKInput
                 sx={{ flexGrow: 1 }}
@@ -186,7 +187,7 @@ function HomeCompany() {
               variant="contained"
               color="primary"
               startIcon={<SvgIcon as={PlusIcon} size="normal" />}
-              width="30%"
+              width="40%"
               onClick={() => {
                 navigate("/company/add-job");
               }}

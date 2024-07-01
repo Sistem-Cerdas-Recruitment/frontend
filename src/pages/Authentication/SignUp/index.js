@@ -155,6 +155,11 @@ function SignUpBasic({ role }) {
                           label="Location (City or Regency)"
                           fullWidth
                           value={formik.values.location}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              padding: "4.5px",
+                            },
+                          }}
                           error={!!(formik.touched.location && formik.errors.location)}
                           helperText={formik.touched.location && formik.errors.location}
                         />

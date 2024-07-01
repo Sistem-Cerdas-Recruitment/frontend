@@ -21,24 +21,30 @@ import typography from "assets/theme/base/typography";
 import pxToRem from "assets/theme/functions/pxToRem";
 
 const { dark } = colors;
-const { size, fontWeightBold } = typography;
+const { size, fontWeightMedium } = typography;
 
 export default {
   styleOverrides: {
     root: {
-      display: "block",
       minHeight: pxToRem(24),
-      marginBottom: pxToRem(2),
+      margin: 0,
+      "&.MuiFormControlLabel-labelPlacementStart": {
+        "& .MuiFormControlLabel-label": {
+          marginRight: "5px",
+        },
+      },
+      "&.MuiFormControlLabel-labelPlacementEnd": {
+        "& .MuiFormControlLabel-label": {
+          marginLeft: "5px",
+        },
+      },
+      "& .MuiSvgIcon-root": { width: 35, height: 35 },
     },
 
     label: {
-      display: "inline-block",
       fontSize: size.sm,
-      fontWeight: fontWeightBold,
+      fontWeight: fontWeightMedium,
       color: dark.main,
-      lineHeight: 1,
-      transform: `translateY(${pxToRem(1)})`,
-      marginLeft: pxToRem(4),
 
       "&.Mui-disabled": {
         color: dark.main,

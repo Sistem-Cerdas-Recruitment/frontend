@@ -206,7 +206,6 @@ function HistoryCompany() {
                       label="Relevance Only"
                       control={
                         <Checkbox
-                          sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }}
                           checked={relevanceOnly}
                           onChange={(e) => setRelevanceOnly(e.target.checked)}
                         />

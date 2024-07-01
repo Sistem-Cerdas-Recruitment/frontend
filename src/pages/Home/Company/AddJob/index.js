@@ -180,6 +180,11 @@ function AddJob() {
                       label="Location (City or Regency)"
                       variant="outlined"
                       fullWidth
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          padding: "4.5px",
+                        },
+                      }}
                       value={formik.values.location}
                       error={formik.touched.location && Boolean(formik.errors.location)}
                       helperText={formik.touched.location && formik.errors.location}

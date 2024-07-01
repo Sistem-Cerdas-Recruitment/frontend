@@ -32,7 +32,7 @@ export default {
       minHeight: "unset",
       padding: `${pxToRem(4.8)} ${pxToRem(16)}`,
       borderRadius: borderRadius.md,
-      fontSize: size.sm,
+      fontSize: size.md,
       color: text.main,
       transition: "background-color 300ms ease, color 300ms ease",
 
