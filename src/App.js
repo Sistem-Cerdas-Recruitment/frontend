@@ -19,8 +19,11 @@ import MKBox from "components/MKBox";
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 
 import { routes, getNavbarRoutes } from "utils/enums/routes";
+import axios from "axios";
 
 export default function App() {
+  // eslint-disable-next-line no-undef
+  const url = process.env.REACT_APP_API_URL;
   const [navbarRoutes, setNavbarRoutes] = useState([]);
   const { pathname } = useLocation();
 
@@ -37,6 +40,41 @@ export default function App() {
       return null;
     });
 
+  function checkToken() {
+    axios
+      .get(`${url}/api/user/get`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+        // if 401, check localStorage rememberMe, if true, login again with email and password from localStorage
+        if (err.response.status === 401) {
+          if (localStorage.getItem("rememberMe") === "true") {
+            axios
+              .post(`${url}/api/auth/login`, {
+                email: localStorage.getItem("email"),
+                password: localStorage.getItem("password"),
+              })
+              .then((res) => {
+                localStorage.setItem("token", res.data.token);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
+        }
+      });
+    if (localStorage.getItem("token")) {
+      return true;
+    }
+    return false;
+  }
+
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -47,6 +85,12 @@ export default function App() {
   useEffect(() => {
     const currentNavbarRoutes = getNavbarRoutes(routes);
     setNavbarRoutes(currentNavbarRoutes);
+    console.log("pathname", pathname);
+  }, [pathname]);
+
+  // Check if token is still valid
+  useEffect(() => {
+    checkToken();
   }, [pathname]);
 
   return (

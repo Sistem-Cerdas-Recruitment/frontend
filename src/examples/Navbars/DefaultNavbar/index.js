@@ -1,7 +1,6 @@
 import { Fragment, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import axios from "axios";
 
 import {
   IconButton,
@@ -30,8 +29,6 @@ import breakpoints from "assets/theme/base/breakpoints";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
 function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, center }) {
-  // eslint-disable-next-line no-undef
-  const url = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const [dropdown, setDropdown] = useState("");
   const [dropdownEl, setDropdownEl] = useState("");
@@ -489,20 +486,8 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
                 variant="text"
                 color="error"
                 onClick={() => {
-                  axios
-                    .post(`${url}/api/auth/logout`, {
-                      headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                      },
-                    })
-                    .then((res) => {
-                      console.log(res);
-                      localStorage.clear();
-                      window.location.href = "/sign-in";
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
+                  localStorage.clear();
+                  window.location.href = "/sign-in";
                 }}
               >
                 LogOut

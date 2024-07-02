@@ -60,6 +60,10 @@ export default function SignInBasic() {
               localStorage.setItem("name", res.data.name);
               localStorage.setItem("email", res.data.email);
               localStorage.setItem("role", res.data.role);
+              if (rememberMe) {
+                localStorage.setItem("rememberMe", true);
+                localStorage.setItem("password", values.password);
+              }
               toast.success("Login success");
               if (location.state?.next) {
                 navigate(location.state.next, { state: { job: location.state.job } });
