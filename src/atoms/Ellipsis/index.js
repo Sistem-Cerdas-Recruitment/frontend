@@ -70,7 +70,18 @@ const ActionDropdown = ({ application }) => {
       description: "Download the applicant's CV",
       icon: <DocumentCheckIcon />,
       action: () => {
-        window.open(application.cvUrl || "", "_blank");
+        axios
+          .get(`${url}/api/job/application/${application.id}/cv`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          .then((res) => {
+            window.open(res.data.data || "", "_blank");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       },
     },
     {
@@ -172,7 +183,7 @@ const ActionDropdown = ({ application }) => {
                         alignItems="flex-start"
                       >
                         <MKTypography variant="h6">{item.name}</MKTypography>
-                        <MKTypography variant="body2" color="textSecondary">
+                        <MKTypography variant="body2" color="secondary">
                           {item.description}
                         </MKTypography>
                       </MKBox>
