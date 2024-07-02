@@ -57,7 +57,7 @@ const statusMap = {
 
 function convertStatusCompany(status) {
   if (status === "PENDING") return "Need Review";
-  if (status === "AWAITING_INTERVIEW") return "Not Yet Interviewed";
+  if (status === "AWAITING_INTERVIEW") return "Interview Not Started";
   if (status === "INTERVIEW") return "Interviewing";
   if (status === "AWAITING_EVALUATION") return "Evaluating";
   if (status === "EVALUATED") return "Need Decision";
@@ -181,7 +181,7 @@ function HistoryCompany() {
                       >
                         <MenuItem value="All">All</MenuItem>
                         <MenuItem value="Need Review">Need Review</MenuItem>
-                        <MenuItem value="Not Yet Interviewed">Not Yet Interviewed</MenuItem>
+                        <MenuItem value="Interview Not Started">Interview Not Started</MenuItem>
                         <MenuItem value="Interviewing">Interviewing</MenuItem>
                         <MenuItem value="Evaluating">Evaluating</MenuItem>
                         <MenuItem value="Need Decision">Need Decision</MenuItem>

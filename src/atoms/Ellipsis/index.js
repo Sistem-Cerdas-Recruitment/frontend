@@ -62,16 +62,15 @@ const ActionDropdown = ({ application }) => {
       .catch((err) => {
         console.log(err);
       });
-    console.log(type);
   }
 
   const actionItems = [
     {
-      name: "CV Details",
-      description: "View CV and Matching Score",
+      name: "Download CV",
+      description: "Download the applicant's CV",
       icon: <DocumentCheckIcon />,
       action: () => {
-        console.log("CV Details");
+        window.open(application.cvUrl || "", "_blank");
       },
     },
     {
