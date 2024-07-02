@@ -50,7 +50,7 @@ const routes = [
   // applicant only
   {
     name: "home applicant",
-    route: "/applicant/home",
+    route: "/",
     component: <HomeApplicant />,
     display: true,
     for: "applicant",
@@ -87,7 +87,7 @@ const routes = [
   // company only
   {
     name: "home company",
-    route: "/company/home",
+    route: "/",
     component: <HomeCompany />,
     display: true,
     for: "company",
@@ -135,18 +135,18 @@ const getNavbarRoutes = () => {
   if (role === "CANDIDATE") {
     routes.push({
       name: "Home",
-      route: "/applicant/home",
+      route: "/",
       icon: <Icon>home</Icon>,
     });
     routes.push({
-      name: "history",
+      name: "History",
       route: "/applicant/history",
       icon: <Icon>work</Icon>,
     });
   } else if (role === "RECRUITER") {
     routes.push({
       name: "Home",
-      route: "/company/home",
+      route: "/",
       icon: <Icon>home</Icon>,
     });
     routes.push({

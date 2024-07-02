@@ -47,9 +47,6 @@ export default function App() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-      .then((res) => {
-        console.log(res);
-      })
       .catch((err) => {
         console.log(err);
         // if 401, check localStorage rememberMe, if true, login again with email and password from localStorage
@@ -75,6 +72,16 @@ export default function App() {
     return false;
   }
 
+  function convertPathname(pathname) {
+    const splitPathname = pathname
+      .split("/")
+      .slice(1)
+      .map((i) => i.charAt(0).toUpperCase() + i.slice(1));
+    if (pathname.includes("sign-up")) return splitPathname.join(" "); // Sign Up
+    if (splitPathname.length > 1) return splitPathname[1]; // except Home
+    return splitPathname[0]; // Home
+  }
+
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -85,12 +92,14 @@ export default function App() {
   useEffect(() => {
     const currentNavbarRoutes = getNavbarRoutes(routes);
     setNavbarRoutes(currentNavbarRoutes);
-    console.log("pathname", pathname);
   }, [pathname]);
 
   // Check if token is still valid
   useEffect(() => {
-    checkToken();
+    document.title = `< Ask AI | Automate Hiring > ${convertPathname(pathname)}`;
+    if (pathname !== "/sign-in" && !pathname.includes("sign-up")) {
+      checkToken();
+    }
   }, [pathname]);
 
   return (

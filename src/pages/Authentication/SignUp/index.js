@@ -27,7 +27,6 @@ import EyeIcons from "@heroicons/react/24/solid/EyeIcon";
 import EyeSlashIcon from "@heroicons/react/24/solid/EyeSlashIcon";
 
 import { cities } from "utils/enums/cities";
-import { convertRole } from "utils/functions";
 
 function SignUpBasic({ role }) {
   const navigate = useNavigate();
@@ -65,7 +64,7 @@ function SignUpBasic({ role }) {
           localStorage.setItem("email", values.email);
           localStorage.setItem("role", role);
           toast.success("Register success");
-          navigate(`/${convertRole(res.data.role)}/home`);
+          navigate(`/`);
         })
         .catch((err) => {
           console.log(err);

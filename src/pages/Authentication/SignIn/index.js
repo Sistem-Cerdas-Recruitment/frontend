@@ -13,8 +13,6 @@ import MKTypography from "components/MKTypography";
 import MKInput from "components/MKInput";
 import MKButton from "components/MKButton";
 
-import { convertRole } from "utils/functions";
-
 // other packages
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -68,7 +66,7 @@ export default function SignInBasic() {
               if (location.state?.next) {
                 navigate(location.state.next, { state: { job: location.state.job } });
               } else {
-                navigate(`/${convertRole(res.data.role)}/home`);
+                navigate(`/`);
               }
             })
             .catch((err) => {

@@ -18,7 +18,16 @@ const JobCard = (props) => {
         <MKBox px={4.8} pt={3.5} pb={1.7}>
           {/* max height 20 */}
           {job.img && <img src={job.img} alt={job.title} style={{ maxHeight: "60px" }} />}
-          <MKTypography variant="h4" sx={{ textDecoration: "underline" }}>
+          <MKTypography
+            variant="h4"
+            component="a"
+            href={`/detail-vacancy/${job.id}`}
+            sx={{
+              "&:hover": {
+                textDecoration: "underline !important",
+              },
+            }}
+          >
             {job.title}
           </MKTypography>
           <MKTypography variant="body1" color="dark">

@@ -95,7 +95,7 @@ function AddJob() {
       })
       .then(() => {
         toast.success("Job posted successfully");
-        navigate("/company/home");
+        navigate("/");
       })
       .catch((err) => {
         console.error(err);
