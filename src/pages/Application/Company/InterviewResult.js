@@ -39,6 +39,7 @@ const InterviewResult = () => {
   }, []);
 
   const checkIf25words = (text) => {
+    if (!text) return false;
     return text.split(" ").length <= 25;
   };
 
