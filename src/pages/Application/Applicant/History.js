@@ -84,28 +84,6 @@ function HistoryApplicant() {
       });
   };
 
-  const startInterview = (applicationId) => {
-    axios
-      .post(
-        `${url}/api/interview/start`,
-        {
-          job_application_id: applicationId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
-      .then((res) => {
-        console.log(res);
-        window.open(`/applicant/interview/${applicationId}`, "_blank");
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  };
-
   useEffect(() => {
     let filtered = applications.filter((application) => {
       if (!application.jobTitle.toLowerCase().includes(titleQuery.toLowerCase())) return false;
@@ -282,25 +260,19 @@ function HistoryApplicant() {
                           </TableCell>
                           <ActionTableCell>
                             {["AWAITING_INTERVIEW", "INTERVIEW"].includes(application.status) ? (
-                              application.status === "AWAITING_INTERVIEW" ? (
-                                <MKButton
-                                  onClick={() => startInterview(application.id)}
-                                  variant="contained"
-                                  color="primary"
-                                >
-                                  GO
-                                </MKButton>
-                              ) : (
-                                <MKButton
-                                  onClick={() =>
-                                    window.open(`/applicant/interview/${application.id}`, "_blank")
-                                  }
-                                  variant="contained"
-                                  color="primary"
-                                >
-                                  CONTINUE
-                                </MKButton>
-                              )
+                              <MKButton
+                                onClick={() =>
+                                  window.open(
+                                    `/applicant/interview-intro/${application.id}`,
+                                    "_blank"
+                                  )
+                                }
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                              >
+                                {application.status === "AWAITING_INTERVIEW" ? "START" : "RESUME"}
+                              </MKButton>
                             ) : (
                               <MKTypography variant="body2" color="error">
                                 Not Available

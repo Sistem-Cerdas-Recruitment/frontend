@@ -7,6 +7,7 @@ import HomeApplicant from "pages/Home/Applicant";
 import DetailVacancy from "pages/Home/Applicant/DetailVacancy";
 import ApplyCV from "pages/Application/Applicant/ApplyCV";
 import HistoryApplicant from "pages/Application/Applicant/History";
+import InterivewIntro from "pages/Application/Applicant/InterviewIntro";
 import Interview from "pages/Application/Applicant/Interview";
 
 import SignUpCompany from "pages/Authentication/SignUp/Company";
@@ -69,6 +70,13 @@ const routes = [
     for: "applicant",
   },
   {
+    name: "interview intro",
+    route: "/applicant/interview-intro/:id",
+    component: <InterivewIntro />,
+    display: false,
+    for: "applicant",
+  },
+  {
     name: "interview",
     route: "/applicant/interview/:id",
     component: <Interview />,
@@ -124,7 +132,6 @@ const getNavbarRoutes = () => {
       icon: <Icon>person</Icon>,
     });
   }
-  console.log("role", role);
   if (role === "CANDIDATE") {
     routes.push({
       name: "Home",

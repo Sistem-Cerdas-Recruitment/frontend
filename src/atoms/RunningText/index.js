@@ -17,7 +17,7 @@ const RunningText = ({ isAnimated, isByWord, text, delay, ...others }) => {
     } else {
       animateByCharacter(delay || 14);
     }
-    window.scrollTo(0, document.body.scrollHeight + 50);
+    window.scrollTo(0, document.body.scrollHeight);
 
     return () => clearInterval(interval);
 

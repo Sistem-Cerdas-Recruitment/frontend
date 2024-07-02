@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { CpuChipIcon, UserCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/solid";
 import SpinningBar from "atoms/SpinningBar";
 import RunningText from "atoms/RunningText";
+import { allowedKeys } from "utils/enums/keys";
 
 const Interview = () => {
   // eslint-disable-next-line no-undef
@@ -139,60 +140,7 @@ const Interview = () => {
     };
     const handleKeyDown = (e) => {
       const isAlphanumeric = e.key.length === 1 && e.key.match(/[a-z0-9]/i);
-      const availableKeys = [
-        // eslint-disable-next-line prettier/prettier
-        "!",
-        "@",
-        "#",
-        "$",
-        "%",
-        "^",
-        "&",
-        "*",
-        "(",
-        ")",
-        "_",
-        "+",
-        "-",
-        "=",
-        "[",
-        "]",
-        // eslint-disable-next-line prettier/prettier
-        "{",
-        "}",
-        "\\",
-        "|",
-        ";",
-        ":",
-        "'",
-        '"',
-        ",",
-        ".",
-        "/",
-        "<",
-        ">",
-        "?",
-        "`",
-        "~",
-        // eslint-disable-next-line prettier/prettier
-        "Control",
-        "Alt",
-        "Shift",
-        "Enter",
-        "Backspace",
-        "Delete",
-        "Home",
-        "End",
-        // eslint-disable-next-line prettier/prettier
-        "ArrowLeft",
-        "ArrowRight",
-        "ArrowUp",
-        "ArrowDown",
-        "CapsLock",
-        "Tab",
-        " ",
-      ];
-      if (isAlphanumeric || availableKeys.includes(e.key)) return;
+      if (isAlphanumeric || allowedKeys.includes(e.key)) return;
       e.preventDefault();
       showToast("warn", "Forbidden key pressed.");
     };
@@ -317,42 +265,44 @@ const Interview = () => {
               </MKBox>
             )}
             {/* Input section */}
-            <MKBox
-              display="flex"
-              flexDirection="row"
-              alignItems="center"
-              gap={0}
-              mt={5}
-              pl={5}
-              pr={1.5}
-            >
-              <TextField
-                label="Answer"
-                multiline
-                rows={5}
-                fullWidth
-                placeholder="Type your answer here"
-                variant="outlined"
-                value={answer}
-                onPaste={preventEvent}
-                onKeyDown={handleKeyPress}
-                onChange={(e) => setAnswer(e.target.value)}
-              />
-              <IconButton onClick={answerQuestion}>
-                <SvgIcon
-                  // component={ChevronDoubleUpIcon}
-                  // sx={{ height: 30, width: 30 }}
-                  component={ArrowUpCircleIcon}
-                  sx={{ height: 40, width: 40 }}
-                  color="black"
+            <MKBox display="flex" flexDirection="column" gap={2}>
+              <MKBox
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                gap={0}
+                mt={5}
+                pl={5}
+                pr={3}
+              >
+                <TextField
+                  label="Answer"
+                  multiline
+                  rows={5}
+                  fullWidth
+                  placeholder="Type your answer here"
+                  variant="outlined"
+                  value={answer}
+                  onPaste={preventEvent}
+                  onKeyDown={handleKeyPress}
+                  onChange={(e) => setAnswer(e.target.value)}
                 />
-              </IconButton>
-            </MKBox>
-            {/* Disclaimer that enter are use to send, and shift + enter are use to new line */}
-            <MKBox display="flex" justifyContent="flex-start" pt={1} pl={6}>
-              <MKTypography variant="caption" color="grey" sx={{ fontWeight: 500 }}>
-                Press Enter to send, Shift + Enter for new line
-              </MKTypography>
+                <IconButton onClick={answerQuestion}>
+                  <SvgIcon
+                    // component={ChevronDoubleUpIcon}
+                    // sx={{ height: 30, width: 30 }}
+                    component={ArrowUpCircleIcon}
+                    sx={{ height: 40, width: 40 }}
+                    color="black"
+                  />
+                </IconButton>
+              </MKBox>
+              {/* Disclaimer that enter are use to send, and shift + enter are use to new line */}
+              <MKBox display="flex" justifyContent="flex-start" pl={6}>
+                <MKTypography variant="caption" color="grey" sx={{ fontWeight: 500 }}>
+                  Press Enter to send, Shift + Enter for new line
+                </MKTypography>
+              </MKBox>
             </MKBox>
           </MKBox>
           <MKBox display="flex" justifyContent="center" mt={5} />
