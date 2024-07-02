@@ -24,7 +24,8 @@ const ExperienceFrom = (props) => {
   return (
     <MKBox>
       <MKTypography style={{ color: "grey", fontSize: "15px" }}>
-        (Please add experiences start date and end date)
+        (Please add experiences start date and end date) - (fill end date with{" "}
+        <span style={{ color: "red" }}>today</span> if still occupied)
       </MKTypography>
       <MKTypography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
         Experiences

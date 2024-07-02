@@ -33,6 +33,7 @@ const ApplyCV = () => {
   const [onEdit, setOnEdit] = useState(true);
   const [eduEditIndexs, setEduEditIndexs] = useState([]);
   const [expEditIndexs, setExpEditIndexs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [skills, setSkills] = useState([]);
   const [experiences, setExperiences] = useState([]);
@@ -57,6 +58,7 @@ const ApplyCV = () => {
         cv_id: selectedCVId,
         experience: experience,
       };
+      setIsLoading(true);
       axios
         .post(`${url}/api/job/apply`, data, {
           headers: {
@@ -64,6 +66,7 @@ const ApplyCV = () => {
           },
         })
         .then((res) => {
+          setIsLoading(false);
           toast.success("Application submitted successfully");
           navigate("/applicant/history");
           console.log(res);
@@ -428,7 +431,15 @@ const ApplyCV = () => {
               Submit Application
             </MKButton>
           </MKBox>
-          <MKBox mb={20} />
+          {isLoading && (
+            <MKBox display="flex" flexDirection="column" alignItems="center">
+              <MKTypography variant="body1" sx={{ color: "black", fontWeight: "bold" }}>
+                submitting
+              </MKTypography>
+              <SpinningBar size={50} />
+            </MKBox>
+          )}
+          <MKBox mb={15} />
         </MKBox>
       ) : (
         <MKBox
