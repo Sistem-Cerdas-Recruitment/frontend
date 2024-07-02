@@ -33,7 +33,7 @@ import SpinningBar from "atoms/SpinningBar";
 const ActionTableCell = styled(TableCell)({
   textAlign: "center",
   padding: "0.75rem 0.5rem",
-  width: "9%",
+  width: "10%",
 });
 
 const statusMap = {
@@ -60,6 +60,8 @@ function HistoryApplicant() {
   const navigate = useNavigate();
   // eslint-disable-next-line no-undef
   const url = process.env.REACT_APP_API_URL;
+  // eslint-disable-next-line no-undef
+  const onDevelopment = process.env.REACT_APP_ONDEV === "true";
   const [applications, setApplications] = useState([]);
   const [filteredApplications, setFilteredApplications] = useState([]);
   const [titleQuery, setTitleQuery] = useState("");
@@ -259,14 +261,15 @@ function HistoryApplicant() {
                             </IconButton>
                           </TableCell>
                           <ActionTableCell>
-                            {["AWAITING_INTERVIEW", "INTERVIEW"].includes(application.status) ? (
+                            {application.status === "AWAITING_INTERVIEW" ||
+                            (application.status === "INTERVIEW" && onDevelopment) ? (
                               <MKButton
-                                onClick={() =>
+                                onClick={() => {
                                   window.open(
                                     `/applicant/interview-intro/${application.id}`,
                                     "_blank"
-                                  )
-                                }
+                                  );
+                                }}
                                 variant="contained"
                                 color="primary"
                                 fullWidth

@@ -148,9 +148,8 @@ const Interview = () => {
     const showToast = (type, message) => {
       toast[type](message || "You are not allowed to perform this action.", {
         position: "top-center",
-        autoClose: 2000,
+        autoClose: 5000,
         hideProgressBar: true,
-        closeOnClick: true,
         pauseOnHover: false,
         draggable: false,
         progress: undefined,

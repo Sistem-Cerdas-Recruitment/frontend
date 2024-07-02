@@ -131,7 +131,7 @@ export default styled(Button)(({ theme, ownerState }) => {
 
       "&:focus:not(:hover)": {
         background: transparent.main,
-        // boxShadow: boxShadowValue,
+        boxShadow: boxShadowValue,
       },
 
       "&:active:not(:hover)": {

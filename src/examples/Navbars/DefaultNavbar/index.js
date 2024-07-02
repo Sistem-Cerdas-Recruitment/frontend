@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {
@@ -29,7 +29,10 @@ import breakpoints from "assets/theme/base/breakpoints";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
 function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, center }) {
+  // eslint-disable-next-line no-undef
+  const onDevelopment = process.env.REACT_APP_ONDEV === "true";
   const navigate = useNavigate();
+  const location = useLocation();
   const [dropdown, setDropdown] = useState("");
   const [dropdownEl, setDropdownEl] = useState("");
   const [dropdownName, setDropdownName] = useState("");
@@ -532,14 +535,16 @@ function DefaultNavbar({ brand, routes, transparent, light, sticky, relative, ce
             </MKTypography>
           </MKBox>
           {/* ITEMS */}
-          <MKBox
-            color="inherit"
-            display={{ xs: "none", lg: "flex" }}
-            ml="auto"
-            mr={center ? "auto" : 2}
-          >
-            {renderNavbarItems}
-          </MKBox>
+          {(!location.pathname.includes("/interview/") || onDevelopment) && (
+            <MKBox
+              color="inherit"
+              display={{ xs: "none", lg: "flex" }}
+              ml="auto"
+              mr={center ? "auto" : 2}
+            >
+              {renderNavbarItems}
+            </MKBox>
+          )}
           {/* USER PROFILE */}
           {localStorage.getItem("token") && (
             <IconButton
