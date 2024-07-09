@@ -1,12 +1,12 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { Container, SvgIcon } from "@mui/material";
+import { Container, SvgIcon, Stack, Slider } from "@mui/material";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 
 import { CpuChipIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { convertNumber2Percentage } from "utils/functions";
+import { Person, SmartToy } from "@mui/icons-material";
 
 const InterviewResult = () => {
   // eslint-disable-next-line no-undef
@@ -122,24 +122,58 @@ const InterviewResult = () => {
                     with{" "}
                     <span style={{ fontWeight: 600 }}>{item.confidence || "No confidence"}</span>{" "}
                   </MKTypography>
-                  <MKBox display="flex" flexDirection="row" justifyContent="space-between" gap={2}>
-                    <MKTypography variant="body2">
-                      Probability value, <br />
-                      Main model:{" "}
-                      <span style={{ fontWeight: 600 }}>
-                        {convertNumber2Percentage(item.main_model_probability) || "No probability"}
-                      </span>{" "}
-                      <br />
-                      Second Model:{" "}
-                      <span style={{ fontWeight: 600 }}>
-                        {convertNumber2Percentage(item.secondary_model_prediction) ||
-                          "No secondary prediction"}
-                      </span>
-                    </MKTypography>
+                  <MKBox
+                    display="flex"
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    gap={2}
+                    width="100%"
+                  >
+                    <Stack direction="column" flexGrow={1}>
+                      <MKTypography variant="body2">Probability value,</MKTypography>
+                      <Stack spacing={1} direction="row" alignItems="center" width="100%">
+                        <Stack direction="column" width="max-width">
+                          <MKTypography variant="body2">Main model:</MKTypography>
+                          <MKTypography variant="body2">Second Model:</MKTypography>
+                        </Stack>
+                        <Stack direction="column" flexGrow={1} maxWidth="215px">
+                          {item.main_model_probability ? (
+                            <Stack spacing={1} direction="row" alignItems="center">
+                              <Person />
+                              <Slider
+                                disabled
+                                value={eval(item.main_model_probability)}
+                                valueLabelDisplay="auto"
+                                min={0}
+                                max={1}
+                              />
+                              <SmartToy />
+                            </Stack>
+                          ) : (
+                            <MKTypography variant="body2">No prediction</MKTypography>
+                          )}
+                          {item.secondary_model_prediction ? (
+                            <Stack spacing={1} direction="row" alignItems="center">
+                              <Person />
+                              <Slider
+                                disabled
+                                value={Number(item.secondary_model_prediction)}
+                                valueLabelDisplay="auto"
+                                min={0}
+                                max={1}
+                              />
+                              <SmartToy />
+                            </Stack>
+                          ) : (
+                            <MKTypography variant="body2">No prediction</MKTypography>
+                          )}
+                        </Stack>
+                      </Stack>
+                    </Stack>
                     {checkIf25words(item.answer) && (
                       <MKTypography
                         variant="caption"
-                        width="50%"
+                        width="300px"
                         sx={{ whiteSpace: "pre-wrap", alignSelf: "center" }}
                         pt={1}
                       >

@@ -114,10 +114,7 @@ export default function App() {
           {localStorage.getItem("token") ? (
             <>
               {getFilteredRoutes(routes)}
-              <Route
-                path="*"
-                element={<Navigate to={`/${convertRole(localStorage.getItem("role"))}/home`} />}
-              />
+              <Route path="*" element={<Navigate to={`/`} />} />
             </>
           ) : (
             <>

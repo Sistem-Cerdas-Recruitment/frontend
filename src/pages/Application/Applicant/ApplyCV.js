@@ -222,7 +222,9 @@ const ApplyCV = () => {
           >
             <Input
               type="file"
-              accept=".pdf"
+              inputProps={{
+                accept: "application/pdf",
+              }}
               inputRef={inputRef}
               style={{ display: "none" }}
               onChange={(e) => {
@@ -310,6 +312,7 @@ const ApplyCV = () => {
                   inputRef.current.click();
                 }}
                 size="large"
+                disabled={onExtract || isLoading}
               >
                 Upload New CV
               </MKButton>
