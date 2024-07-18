@@ -99,7 +99,7 @@ function HistoryCompany() {
 
   useEffect(() => {
     let filtered = applications.filter((application) => {
-      if (relevanceOnly && !application.relevance) return false;
+      if (relevanceOnly && !application.isRelevant) return false;
       if (!application.userName.toLowerCase().includes(query.toLowerCase())) return false;
       if (statusQuery !== "All" && convertStatusCompany(application.status) !== statusQuery)
         return false;
@@ -263,9 +263,9 @@ function HistoryCompany() {
                             >
                               <SvgIcon
                                 fontSize="normal"
-                                color={application.relevance ? "success" : "error"}
+                                color={application.isRelevant ? "success" : "error"}
                               >
-                                {application.relevance ? <CheckIcon /> : <XMarkIcon />}
+                                {application.isRelevant ? <CheckIcon /> : <XMarkIcon />}
                               </SvgIcon>
                             </MKBox>
                           </TableCell>
