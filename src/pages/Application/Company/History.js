@@ -276,8 +276,10 @@ function HistoryCompany() {
                           </TableCell>
                           <TableCell align="center">
                             <MKTypography variant="body2" color="info">
-                              {application.interviewScore && application.interviewScore != 0
-                                ? application.interviewScore.toFixed(2)
+                              {application.interviewScore
+                                ? application.interviewScore != 0
+                                  ? application.interviewScore.toFixed(2)
+                                  : "0.00"
                                 : "N/A"}
                             </MKTypography>
                           </TableCell>

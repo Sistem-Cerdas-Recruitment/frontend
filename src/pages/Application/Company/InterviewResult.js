@@ -60,7 +60,7 @@ const InterviewResult = () => {
             {/* Title Section */}
             <MKBox display="flex" flexDirection="column" sx={{ position: "relative" }} py={2}>
               <MKTypography variant="h3" sx={{ position: "absolute", top: 10, right: 50 }}>
-                {state.score || "NA"} / 100
+                {state.score ? (state.score != 0 ? state.score.toFixed(2) : "0.00") : "NA"} / 100
               </MKTypography>
               <MKTypography variant="h3" mb={3} align="center">
                 Interview Result
