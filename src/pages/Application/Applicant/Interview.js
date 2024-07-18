@@ -10,6 +10,7 @@ import { CpuChipIcon, UserCircleIcon, ArrowUpCircleIcon } from "@heroicons/react
 import SpinningBar from "atoms/SpinningBar";
 import RunningText from "atoms/RunningText";
 import { allowedKeys } from "utils/enums/keys";
+import { formatTime } from "utils/functions";
 
 const Interview = () => {
   // eslint-disable-next-line no-undef
@@ -19,12 +20,43 @@ const Interview = () => {
   const navigate = useNavigate();
   const { id: applicationId } = useParams();
   const [loading, setLoading] = useState(true);
+
   const [history, setHistory] = useState([]); // [ { question: "", answer: "" }
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [backspaceCounter, setBackspaceCounter] = useState(0);
   const [keyCounter, setKeyCounter] = useState({});
   const [nPressed, setNPressed] = useState(0);
+  const thinking = 30;
+  const answering = 5 * 60;
+  const [thinkingTime, setThinkingTime] = useState(thinking);
+  const [answeringTime, setAnsweringTime] = useState(null);
+  const [isAnswering, setIsAnswering] = useState(false);
+
+  useEffect(() => {
+    if (thinkingTime > 0 && !isAnswering) {
+      const timer = setInterval(() => {
+        setThinkingTime((prevTime) => prevTime - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (thinkingTime === 0 && !isAnswering) {
+      setAnsweringTime(answering);
+      setIsAnswering(true);
+    }
+  }, [thinkingTime, isAnswering]);
+
+  useEffect(() => {
+    if (answeringTime !== null && isAnswering) {
+      if (answeringTime === 0) {
+        answerQuestion();
+      } else {
+        const timer = setInterval(() => {
+          setAnsweringTime((prevTime) => prevTime - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+      }
+    }
+  }, [answeringTime, isAnswering]);
 
   const preventEvent = (e) => {
     if (onDevelopment) return;
@@ -33,7 +65,8 @@ const Interview = () => {
 
   const answerQuestion = () => {
     if (answer.trim() === "") {
-      return;
+      setAnswer("Time's up! Not Answered.");
+      // return;
     }
     setLoading(true);
     const newKeyCounter = fillCounter();
@@ -69,6 +102,9 @@ const Interview = () => {
           history.push({ question: newQuestion, answer: null });
           setQuestion(newQuestion);
           setLoading(false);
+          setThinkingTime(thinking);
+          setAnsweringTime(null);
+          setIsAnswering(false);
         }
       })
       .catch((err) => {
@@ -92,6 +128,10 @@ const Interview = () => {
           [key]: (prevCounts[key] || 0) + 1,
         }));
       }
+    }
+    if (nPressed === 0) {
+      setAnsweringTime(answering);
+      setIsAnswering(true);
     }
     setNPressed(nPressed + 1);
   };
@@ -305,6 +345,40 @@ const Interview = () => {
             </MKBox>
           </MKBox>
           <MKBox display="flex" justifyContent="center" mt={5} />
+        </MKBox>
+        <MKBox
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          bgColor="rgba(255, 255, 255, 0.9)"
+          sx={{
+            position: "fixed",
+            top: 90,
+            right: 20,
+            padding: 2,
+            borderRadius: 1,
+            boxShadow: 3,
+            textAlign: "center",
+            zIndex: 100,
+            width: 250,
+          }}
+        >
+          <MKTypography variant="h5">
+            {isAnswering ? `Time left to answer:` : `Time to think:`}
+          </MKTypography>
+          <MKTypography
+            variant="h5"
+            color={isAnswering && answeringTime < 30 ? "error" : "black"}
+            mt={1}
+          >
+            {isAnswering ? formatTime(answeringTime) : formatTime(thinkingTime)}
+          </MKTypography>
+          {!isAnswering && (
+            <MKTypography variant="caption" sx={{ width: 120, lineHeight: 1.2 }} mt={1}>
+              Press available key to start answering.
+            </MKTypography>
+          )}
         </MKBox>
       </MKBox>
     </Container>
