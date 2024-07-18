@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 
 import ExperienceFrom from "sections/Applicant/Application/ApplyCV/ExperienceForm";
 import EducationFrom from "sections/Applicant/Application/ApplyCV/EducationForm";
+import SkillForm from "sections/Applicant/Application/ApplyCV/SkillForm";
 import SpinningBar from "atoms/SpinningBar";
 
 const ApplyCV = () => {
@@ -33,6 +34,7 @@ const ApplyCV = () => {
   const [onEdit, setOnEdit] = useState(true);
   const [eduEditIndexs, setEduEditIndexs] = useState([]);
   const [expEditIndexs, setExpEditIndexs] = useState([]);
+  const [skillEditIndexs, setSkillEditIndexs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [skills, setSkills] = useState([]);
@@ -121,6 +123,10 @@ const ApplyCV = () => {
         },
       })
       .then((res) => {
+        if (res.data.files.length === 0) {
+          setOnExtract(false);
+          return;
+        }
         setRecentCV(res.data.files);
         newId ? selectCV(newId) : selectCV(res.data.files[0].id);
       })
@@ -359,6 +365,13 @@ const ApplyCV = () => {
                   onEditIndex={expEditIndexs}
                   setOnEditIndex={setExpEditIndexs}
                 />
+                <SkillForm
+                  data={skills}
+                  setData={setSkills}
+                  onEdit={onEdit}
+                  onEditIndex={skillEditIndexs}
+                  setOnEditIndex={setSkillEditIndexs}
+                />
                 <MKTypography style={{ color: "grey", fontSize: "14.2px", padding: "0 30px" }}>
                   {onEdit
                     ? "(Please save each educations and experiences before confirm edit)"
@@ -381,7 +394,11 @@ const ApplyCV = () => {
                     size="large"
                     sx={{ width: "20%" }}
                     disabled={
-                      !onEdit || (onEdit && (eduEditIndexs.length > 0 || expEditIndexs.length > 0))
+                      !onEdit ||
+                      (onEdit &&
+                        (eduEditIndexs.length > 0 ||
+                          expEditIndexs.length > 0 ||
+                          skillEditIndexs.length > 0))
                     }
                     onClick={() => setOnEdit(false)}
                   >
